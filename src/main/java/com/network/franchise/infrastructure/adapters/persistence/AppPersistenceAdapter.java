@@ -33,42 +33,22 @@ public class AppPersistenceAdapter implements AppPersistenceAdapterPort {
     // TODO: Refactorizations
     @Override
     public Mono<BranchEntity> addBranch(BranchEntity branchEntity) {
-        System.out.println("BranchEntity: " + branchEntity);
         return branchRepository.save(branchEntity)
                 .switchIfEmpty(Mono.error(new ProcessorException("Error adding branch", TechnicalMessage.BAD_REQUEST)));
-
-//        return franchiseRepository.findById(franchiseId)
-//                .flatMap(franchiseEntity -> {
-//                    branchEntity.setFranchiseId(franchiseEntity.getId());
-//                    return branchRepository.save(branchEntity)
-//                            .doOnSuccess(savedBranchEntity -> log.info("Branch added: {}", savedBranchEntity))
-//                            .doOnError(error -> log.error("Error adding branch: {}", error.getMessage()));
-//                })
-//                .switchIfEmpty(Mono.error(new RuntimeException("Franchise not found")));
-
-//        Long franchiseId = Long.parseLong(request.pathVariable("franchiseId"));
-//        return request.bodyToMono(Branch.class)
-//                .map(branch -> branch.toBuilder().franchiseId(franchiseId).build())
-//                .flatMap(branchRepository::save)
-//                .flatMap(branch -> ServerResponse.ok().bodyValue(branch));
     }
 
     @Override
-    public Mono<ProductEntity> addProduct(ProductEntity productEntity, Long branchId) {
-        return branchRepository.findById(branchId)
-                .flatMap(branchEntity -> {
-                    productEntity.setBranchId(branchEntity.getId());
-                    return productRepository.save(productEntity)
-                            .doOnSuccess(savedProductEntity -> log.info("Product added: {}", savedProductEntity))
-                            .doOnError(error -> log.error("Error adding product: {}", error.getMessage()));
-                })
-                .switchIfEmpty(Mono.error(new RuntimeException("Branch not found")));
-
-//        Long branchId = Long.parseLong(request.pathVariable("branchId"));
-//        return request.bodyToMono(Product.class)
-//                .map(product -> product.toBuilder().branchId(branchId).build())
-//                .flatMap(productRepository::save)
-//                .flatMap(product -> ServerResponse.ok().bodyValue(product));
+    public Mono<ProductEntity> addProduct(ProductEntity productEntity) {
+        return productRepository.save(productEntity)
+                .switchIfEmpty(Mono.error(new ProcessorException("Error adding product", TechnicalMessage.BAD_REQUEST)));
+//        return branchRepository.findById(branchId)
+//                .flatMap(branchEntity -> {
+//                    productEntity.setBranchId(branchEntity.getId());
+//                    return productRepository.save(productEntity)
+//                            .doOnSuccess(savedProductEntity -> log.info("Product added: {}", savedProductEntity))
+//                            .doOnError(error -> log.error("Error adding product: {}", error.getMessage()));
+//                })
+//                .switchIfEmpty(Mono.error(new RuntimeException("Branch not found")));
     }
 
     @Override
@@ -173,6 +153,36 @@ public class AppPersistenceAdapter implements AppPersistenceAdapterPort {
     @Override
     public Mono<Boolean> existsFranchiseByIdExists(Long id) {
         return franchiseRepository.existsById(id)
+                .switchIfEmpty(Mono.error(new NoContentException(TechnicalMessage.NO_CONTENT)))
+                .flatMap(exists -> {
+                    if (exists) return Mono.just(true);
+                    return Mono.just(false);
+                })
+                .switchIfEmpty(Mono.error(new ProcessorException("Error checking franchise existence", TechnicalMessage.BAD_REQUEST)));
+    }
+
+    @Override
+    public Mono<Boolean> existsInProductByBranchId(Long branchId) {
+        return productRepository.findProductEntityByBranchId(branchId)
+                .hasElements()
+                .flatMap(exists -> Mono.just(true))
+                .switchIfEmpty(Mono.error(new ProcessorException("Error checking branch existence", TechnicalMessage.BAD_REQUEST)));
+    }
+
+    @Override
+    public Mono<Boolean> existsByProductName(String name) {
+        return productRepository.existsByName(name)
+                .switchIfEmpty(Mono.error(new NoContentException(TechnicalMessage.NO_CONTENT)))
+                .flatMap(exists -> {
+                    if (exists) return Mono.just(true);
+                    return Mono.just(false);
+                })
+                .switchIfEmpty(Mono.error(new ProcessorException("Error checking product existence", TechnicalMessage.BAD_REQUEST)));
+    }
+
+    @Override
+    public Mono<Boolean> existsBranchesByIdExists(Long id) {
+        return branchRepository.existsById(id)
                 .switchIfEmpty(Mono.error(new NoContentException(TechnicalMessage.NO_CONTENT)))
                 .flatMap(exists -> {
                     if (exists) return Mono.just(true);

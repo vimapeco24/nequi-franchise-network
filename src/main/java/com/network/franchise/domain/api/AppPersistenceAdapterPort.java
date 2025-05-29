@@ -9,17 +9,16 @@ public interface AppPersistenceAdapterPort {
     Mono<FranchiseEntity> createFranchise(FranchiseEntity franchiseEntity);
     Mono<BranchEntity> addBranch(BranchEntity branchEntity);
 
-    Mono<ProductEntity> addProduct(ProductEntity productEntity, Long branchId);
+    Mono<ProductEntity> addProduct(ProductEntity productEntity);
     Mono<ProductEntity> deleteProduct(Long productId, Long branchId);
     Mono<ProductEntity> updateProduct(ProductEntity productEntity, Long productId);
     Mono<BranchEntity> getTopProductsPerBranch(Long franchiseId);
 
     Mono<Boolean> existsFranchiseByName(String name);
-    //Mono<BranchEntity> findByFranchiseId(Long franchiseId);
-
     Mono<Boolean> existsInBranchByFranchiseId(Long franchiseId);
-
     Mono<Boolean> existsByBranchName(String name);
-
     Mono<Boolean> existsFranchiseByIdExists(Long id);
+    Mono<Boolean> existsInProductByBranchId(Long branchId);
+    Mono<Boolean> existsByProductName(String name);
+    Mono<Boolean> existsBranchesByIdExists(Long branchId);
 }

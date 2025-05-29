@@ -32,13 +32,4 @@ public class BranchesDomainMapper {
                 .franchiseId(entity.getFranchiseId())
                 .build();
     }
-
-    public Branch toDomainFromBranch(Branch req) {
-        if (req == null) return null;
-        return Branch.builder()
-                .id(req.getId())
-                .name(req.getName())
-                .franchiseId(req.getFranchiseId())
-                .build();
-    }
 }

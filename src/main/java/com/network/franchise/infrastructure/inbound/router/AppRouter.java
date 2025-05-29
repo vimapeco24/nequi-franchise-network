@@ -3,8 +3,10 @@ package com.network.franchise.infrastructure.inbound.router;
 import com.network.franchise.domain.common.ErrorDto;
 import com.network.franchise.domain.dto.request.CreateBranchRequestDto;
 import com.network.franchise.domain.dto.request.CreateFranchiseRequestDto;
+import com.network.franchise.domain.dto.request.CreateProductRequestDto;
 import com.network.franchise.domain.dto.response.CreateBranchResponseDto;
 import com.network.franchise.domain.dto.response.CreateFranchiseResponseDto;
+import com.network.franchise.domain.dto.response.CreateProductResponseDto;
 import com.network.franchise.infrastructure.inbound.handler.AppHandler;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -132,13 +134,78 @@ public class AppRouter {
                                     )
                             }
                     )
-            )
+            ),
+            @RouterOperation(
+                    path = "/api/v1/branches/{branchId}/products",
+                    produces = "application/json",
+                    method = RequestMethod.POST,
+                    beanClass = AppHandler.class,
+                    beanMethod = "addProduct",
+                    operation = @io.swagger.v3.oas.annotations.Operation(
+                            operationId = "addProduct",
+                            summary = "Add a new Product to a Branch",
+                            description = "Add a new Product to an existing Branch in the database.",
+                            parameters = {
+                                    @Parameter(name = "branchId", in = ParameterIn.PATH, description = "Branch ID", example = "1"),
+                            },
+                            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                    required = true,
+                                    description = "Product Request DTO",
+                                    content = @io.swagger.v3.oas.annotations.media.Content(
+                                            mediaType = "application/json",
+                                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = CreateProductRequestDto.class)
+                                    )
+                            ),
+                            responses = {
+                                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                                            responseCode = "201",
+                                            description = "Created",
+                                            content = @io.swagger.v3.oas.annotations.media.Content(
+                                                    mediaType = "application/json",
+                                                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = CreateProductResponseDto.class)
+                                            )
+                                    ),
+                                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                                            responseCode = "400",
+                                            description = "Bad Request",
+                                            content = @io.swagger.v3.oas.annotations.media.Content(
+                                                    mediaType = "application/json",
+                                                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = ErrorDto.class)
+                                            )
+                                    ),
+                                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                                            responseCode = "409",
+                                            description = "Conflict",
+                                            content = @io.swagger.v3.oas.annotations.media.Content(
+                                                    mediaType = "application/json",
+                                                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = ErrorDto.class)
+                                            )
+                                    ),
+                                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                                            responseCode = "500",
+                                            description = "Internal Server Error",
+                                            content = @io.swagger.v3.oas.annotations.media.Content(
+                                                    mediaType = "application/json",
+                                                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = ErrorDto.class)
+                                            )
+                                    ),
+                                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                                            responseCode = "404",
+                                            description = "Not Found",
+                                            content = @io.swagger.v3.oas.annotations.media.Content(
+                                                    mediaType = "application/json",
+                                                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = ErrorDto.class)
+                                            )
+                                    )
+                            }
+                    )
+            ),
     })
     public RouterFunction<ServerResponse> franchiseRoutes(AppHandler handler) {
         return RouterFunctions.route()
                 .POST("/api/v1/franchises", handler::createFranchise)
                 .POST("/api/v1/franchises/{franchiseId}/branches", handler::addBranch)
-                .POST("/branches/{branchId}/products", handler::addProduct)
+                .POST("/api/v1/branches/{branchId}/products", handler::addProduct)
 //                .DELETE("/branches/{branchId}/products/{productId}", handler::deleteProduct)
 //                .PUT("/products/{productId}/stock", handler::updateStock)
 //                .GET("/franchises/{franchiseId}/top-products", handler::getTopProductsPerBranch)

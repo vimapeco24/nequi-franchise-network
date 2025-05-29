@@ -3,10 +3,14 @@ package com.network.franchise.infrastructure.inbound.handler;
 import com.network.franchise.domain.common.ErrorDto;
 import com.network.franchise.domain.common.exceptions.BusinessException;
 import com.network.franchise.domain.dto.request.CreateBranchRequestDto;
+import com.network.franchise.domain.dto.request.CreateProductRequestDto;
 import com.network.franchise.domain.mapper.BranchesDomainMapper;
 import com.network.franchise.domain.mapper.FranchiseDomainMapper;
+import com.network.franchise.domain.mapper.ProductsDomainMapper;
 import com.network.franchise.domain.model.Branch;
+import com.network.franchise.domain.model.Product;
 import com.network.franchise.domain.spi.AddBranchServicePort;
+import com.network.franchise.domain.spi.AddProductServicePort;
 import com.network.franchise.domain.spi.CreateFranchiseServicePort;
 import com.network.franchise.domain.dto.request.CreateFranchiseRequestDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,8 +35,11 @@ public class AppHandler {
 
     private final CreateFranchiseServicePort createFranchiseServicePort;
     private final AddBranchServicePort addBranchServicePort;
+    private final AddProductServicePort addProductServicePort;
+
     private final FranchiseDomainMapper franchiseMapper;
     private final BranchesDomainMapper branchesMapper;
+    private final ProductsDomainMapper productsMapper;
 
     public Mono<ServerResponse> createFranchise(ServerRequest request) {
         return request.bodyToMono(CreateFranchiseRequestDto.class)
@@ -74,7 +81,27 @@ public class AppHandler {
     }
 
     public Mono<ServerResponse> addProduct(ServerRequest request) {
-        return null;
+        Long branchId = Long.parseLong(request.pathVariable("branchId"));
+
+        return request.bodyToMono(CreateProductRequestDto.class)
+                .flatMap(dto -> {
+                    Product product = Product.builder()
+                            .branchId(branchId)
+                            .stock(Math.toIntExact(dto.getStock()))
+                            .name(dto.getName())
+                            .build();
+                    return addProductServicePort.addProduct(productsMapper.toDomainFromProductRequestDto(product, branchId))
+                            .flatMap(res -> ServerResponse.ok().bodyValue(res));
+                })
+                .doOnError(error -> log.error(CREATE_ERROR, error.getMessage()))
+                .onErrorResume(BusinessException.class, ex -> buildErrorResponse(
+                        HttpStatus.BAD_REQUEST, ex.getTechnicalMessage(),
+                        List.of(ErrorDto.builder()
+                                .code(ex.getTechnicalMessage().getCode())
+                                .message(ex.getTechnicalMessage().getMessage())
+                                .parameter(ex.getTechnicalMessage().getParameter())
+                                .build())
+                ));
     }
 
     public Mono<ServerResponse> deleteProduct(ServerRequest request) {
@@ -88,14 +115,6 @@ public class AppHandler {
     public Mono<ServerResponse> getTopProductsPerBranch(ServerRequest request) {
         return null;
     }
-
-//    public Mono<ServerResponse> addBranch(ServerRequest request) {
-//        Long franchiseId = Long.parseLong(request.pathVariable("franchiseId"));
-//        return request.bodyToMono(BranchEntity.class)
-//                .map(branchEntity -> branchEntity.toBuilder().franchiseId(franchiseId).build())
-//                .flatMap(branchRepository::save)
-//                .flatMap(branchEntity -> ServerResponse.ok().bodyValue(branchEntity));
-//    }
 
 //    public Mono<ServerResponse> addProduct(ServerRequest request) {
 //        Long branchId = Long.parseLong(request.pathVariable("branchId"));

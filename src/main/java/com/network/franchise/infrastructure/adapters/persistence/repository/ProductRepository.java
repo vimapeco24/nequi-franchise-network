@@ -9,4 +9,7 @@ public interface ProductRepository extends ReactiveCrudRepository<ProductEntity,
     Flux<ProductEntity> findByBranchId(Long branchId);
     Mono<Void> deleteByBranchIdAndId(Long branchId, Long id);
     Mono<ProductEntity> findTopByBranchIdOrderByStockDesc(Long branchId);
+
+    Flux<ProductEntity> findProductEntityByBranchId(Long franchiseId);
+    Mono<Boolean> existsByName(String name);
 }
