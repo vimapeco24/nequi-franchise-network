@@ -35,4 +35,13 @@ public class ProductsDomainMapper {
                 .branchId(entity.getBranchId())
                 .build();
     }
+
+    public Product toDomainFromUpdateProductRequestDto(Product product, Long productId) {
+        if (product == null || productId == null) return null;
+        return Product.builder()
+                .id(productId)
+                .name(product.getName())
+                .stock(product.getStock())
+                .build();
+    }
 }

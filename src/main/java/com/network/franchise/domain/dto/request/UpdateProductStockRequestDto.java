@@ -10,10 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Create product request")
-public class CreateProductRequestDto {
-    @Schema(description = "Product name", example = "Product A")
-    private String name;
+@Schema(description = "Request DTO for updating product stock")
+public class UpdateProductStockRequestDto {
 
     @Schema(description = "Stock quantity", example = "100")
     private Long stock;
