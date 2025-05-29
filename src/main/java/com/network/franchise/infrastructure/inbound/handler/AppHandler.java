@@ -37,7 +37,6 @@ public class AppHandler {
     private final AddProductServicePort addProductServicePort;
     private final DeleteProductServicePort deleteProductServicePort;
     private final UpdateStockServicePort updateStockServicePort;
-    public final GetTopProductsPerBranchServicePort getTopProductsPerBranchServicePort;
 
     private final FranchiseDomainMapper franchiseMapper;
     private final BranchesDomainMapper branchesMapper;
@@ -145,18 +144,7 @@ public class AppHandler {
     }
 
     public Mono<ServerResponse> getTopProductsPerBranch(ServerRequest request) {
-        Long franchiseId = Long.parseLong(request.pathVariable("franchiseId"));
-        return getTopProductsPerBranchServicePort.getTopProductsPerBranch(franchiseId)
-                .flatMap(res -> ServerResponse.ok().bodyValue(res))
-                .doOnError(error -> log.error(GET_ERROR, error.getMessage()))
-                .onErrorResume(BusinessException.class, ex -> buildErrorResponse(
-                        HttpStatus.BAD_REQUEST, ex.getTechnicalMessage(),
-                        List.of(ErrorDto.builder()
-                                .code(ex.getTechnicalMessage().getCode())
-                                .message(ex.getTechnicalMessage().getMessage())
-                                .parameter(ex.getTechnicalMessage().getParameter())
-                                .build())
-                ));
+        return null;
     }
 
 //    public Mono<ServerResponse> getTopProductsPerBranch(ServerRequest request) {
