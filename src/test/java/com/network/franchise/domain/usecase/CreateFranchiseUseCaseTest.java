@@ -1,6 +1,6 @@
 package com.network.franchise.domain.usecase;
 
-import com.network.franchise.domain.api.FranchisePersistenceAdapterPort;
+import com.network.franchise.domain.api.AppPersistenceAdapterPort;
 import com.network.franchise.domain.common.enums.TechnicalMessage;
 import com.network.franchise.domain.common.exceptions.BusinessException;
 import com.network.franchise.domain.common.exceptions.DuplicateException;
@@ -19,15 +19,15 @@ import static org.mockito.Mockito.*;
 
 class CreateFranchiseUseCaseTest {
 
-    private FranchisePersistenceAdapterPort franchisePersistenceAdapterPort;
+    private AppPersistenceAdapterPort appPersistenceAdapterPort;
     private FranchiseDomainMapper mapper;
     private CreateFranchiseUseCase useCase;
 
     @BeforeEach
     void setUp() {
-        franchisePersistenceAdapterPort = mock(FranchisePersistenceAdapterPort.class);
+        appPersistenceAdapterPort = mock(AppPersistenceAdapterPort.class);
         mapper = mock(FranchiseDomainMapper.class);
-        useCase = new CreateFranchiseUseCase(franchisePersistenceAdapterPort, mapper);
+        useCase = new CreateFranchiseUseCase(appPersistenceAdapterPort, mapper);
     }
 
     @Test
@@ -37,10 +37,10 @@ class CreateFranchiseUseCaseTest {
         FranchiseEntity entity = FranchiseEntity.builder().name("Franchise A").build();
         CreateFranchiseResponseDto result = CreateFranchiseResponseDto.builder().name("Franchise A").build();
 
-        when(franchisePersistenceAdapterPort.existsByName("Franchise A"))
+        when(appPersistenceAdapterPort.existsFranchiseByName("Franchise A"))
         .thenReturn(Mono.just(false));
         when(mapper.toEntityFromDomainFranchise(request)).thenReturn(entity);
-        when(franchisePersistenceAdapterPort.createFranchise(entity)).thenReturn(Mono.just(entity));
+        when(appPersistenceAdapterPort.createFranchise(entity)).thenReturn(Mono.just(entity));
         when(mapper.toDomainFromFranchiseEntity(entity)).thenReturn(result);
 
         // Act & Assert
@@ -48,7 +48,7 @@ class CreateFranchiseUseCaseTest {
                 .expectNext(result)
                 .verifyComplete();
 
-        verify(franchisePersistenceAdapterPort).createFranchise(entity);
+        verify(appPersistenceAdapterPort).createFranchise(entity);
     }
 
     @Test
@@ -56,7 +56,7 @@ class CreateFranchiseUseCaseTest {
         // Arrange
         Franchise request = Franchise.builder().name("Franchise B").build();
 
-        when(franchisePersistenceAdapterPort.existsByName("Franchise B"))
+        when(appPersistenceAdapterPort.existsFranchiseByName("Franchise B"))
                 .thenReturn(Mono.just(true));
 
         // Act & Assert
@@ -65,7 +65,7 @@ class CreateFranchiseUseCaseTest {
                         throwable instanceof DuplicateException)
                 .verify();
 
-        verify(franchisePersistenceAdapterPort, never()).createFranchise(any());
+        verify(appPersistenceAdapterPort, never()).createFranchise(any());
     }
 
     @Test
@@ -73,7 +73,7 @@ class CreateFranchiseUseCaseTest {
         // Arrange
         Franchise request = Franchise.builder().name("Franchise C").build();
 
-        when(franchisePersistenceAdapterPort.existsByName("Franchise C"))
+        when(appPersistenceAdapterPort.existsFranchiseByName("Franchise C"))
                 .thenReturn(Mono.empty());
 
         // Act & Assert
@@ -83,6 +83,6 @@ class CreateFranchiseUseCaseTest {
                                 ((BusinessException) throwable).getTechnicalMessage() == TechnicalMessage.BAD_REQUEST)
                 .verify();
 
-        verify(franchisePersistenceAdapterPort, never()).createFranchise(any());
+        verify(appPersistenceAdapterPort, never()).createFranchise(any());
     }
 }

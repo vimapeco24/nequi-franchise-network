@@ -1,6 +1,6 @@
 package com.network.franchise.domain.usecase.command;
 
-import com.network.franchise.domain.api.FranchisePersistenceAdapterPort;
+import com.network.franchise.domain.api.AppPersistenceAdapterPort;
 import com.network.franchise.domain.common.enums.TechnicalMessage;
 import com.network.franchise.domain.common.exceptions.BusinessException;
 import com.network.franchise.domain.common.exceptions.DuplicateException;
@@ -12,11 +12,11 @@ import reactor.core.publisher.Mono;
 
 public class CreateFranchiseUseCase implements CreateFranchiseServicePort {
 
-    private final FranchisePersistenceAdapterPort franchisePersistenceAdapterPort;
+    private final AppPersistenceAdapterPort appPersistenceAdapterPort;
     private final FranchiseDomainMapper mapper;
 
-    public CreateFranchiseUseCase(FranchisePersistenceAdapterPort franchisePersistenceAdapterPort, FranchiseDomainMapper mapper) {
-        this.franchisePersistenceAdapterPort = franchisePersistenceAdapterPort;
+    public CreateFranchiseUseCase(AppPersistenceAdapterPort appPersistenceAdapterPort, FranchiseDomainMapper mapper) {
+        this.appPersistenceAdapterPort = appPersistenceAdapterPort;
         this.mapper = mapper;
     }
 
@@ -25,10 +25,10 @@ public class CreateFranchiseUseCase implements CreateFranchiseServicePort {
         if (request.getName() == null || request.getName().isBlank()) {
             return Mono.error(new BusinessException(TechnicalMessage.MISSING_REQUIRED_FIELD));
         }
-        return franchisePersistenceAdapterPort.existsByName(request.getName())
+        return appPersistenceAdapterPort.existsFranchiseByName(request.getName())
                 .flatMap(exists -> {
                     if (exists) return Mono.error(new DuplicateException(TechnicalMessage.ALREADY_EXISTS));
-                    return franchisePersistenceAdapterPort.createFranchise(mapper.toEntityFromDomainFranchise(request))
+                    return appPersistenceAdapterPort.createFranchise(mapper.toEntityFromDomainFranchise(request))
                             .map(mapper::toDomainFromFranchiseEntity);
                 })
                 .switchIfEmpty(Mono.error(new BusinessException(TechnicalMessage.BAD_REQUEST)));

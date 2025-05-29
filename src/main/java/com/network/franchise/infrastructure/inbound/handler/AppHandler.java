@@ -2,7 +2,11 @@ package com.network.franchise.infrastructure.inbound.handler;
 
 import com.network.franchise.domain.common.ErrorDto;
 import com.network.franchise.domain.common.exceptions.BusinessException;
+import com.network.franchise.domain.dto.request.CreateBranchRequestDto;
+import com.network.franchise.domain.mapper.BranchesDomainMapper;
 import com.network.franchise.domain.mapper.FranchiseDomainMapper;
+import com.network.franchise.domain.model.Branch;
+import com.network.franchise.domain.spi.AddBranchServicePort;
 import com.network.franchise.domain.spi.CreateFranchiseServicePort;
 import com.network.franchise.domain.dto.request.CreateFranchiseRequestDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,14 +27,17 @@ import static com.network.franchise.domain.common.util.Constants.CREATE_ERROR;
 @Component
 @RequiredArgsConstructor
 @Tag(name = "Franchises", description = "Franchises Management Services API")
-public class FranchiseHandler {
+public class AppHandler {
 
     private final CreateFranchiseServicePort createFranchiseServicePort;
-    private final FranchiseDomainMapper mapper;
+    private final AddBranchServicePort addBranchServicePort;
+    private final FranchiseDomainMapper franchiseMapper;
+    private final BranchesDomainMapper branchesMapper;
 
     public Mono<ServerResponse> createFranchise(ServerRequest request) {
         return request.bodyToMono(CreateFranchiseRequestDto.class)
-                .flatMap(req -> createFranchiseServicePort.createTechnology(mapper.toDomainFromFranchiseRequestDto(req)))
+                .flatMap(req -> createFranchiseServicePort
+                        .createTechnology(franchiseMapper.toDomainFromFranchiseRequestDto(req)))
                 .flatMap(franchise -> ServerResponse.ok().bodyValue(franchise))
                 .doOnError(error -> log.error(CREATE_ERROR, error.getMessage()))
                 .onErrorResume(BusinessException.class, ex -> buildErrorResponse(
@@ -44,7 +51,26 @@ public class FranchiseHandler {
     }
 
     public Mono<ServerResponse> addBranch(ServerRequest request) {
-        return null;
+        Long franchiseId = Long.parseLong(request.pathVariable("franchiseId"));
+
+        return request.bodyToMono(CreateBranchRequestDto.class)
+                .flatMap(dto -> {
+                    Branch branch = Branch.builder()
+                            .franchiseId(franchiseId)
+                            .name(dto.getName())
+                            .build();
+                    return addBranchServicePort.addBranch(branchesMapper.toDomainFromBranchRequestDto(branch, franchiseId))
+                            .flatMap(res -> ServerResponse.ok().bodyValue(res));
+                })
+                .doOnError(error -> log.error(CREATE_ERROR, error.getMessage()))
+                .onErrorResume(BusinessException.class, ex -> buildErrorResponse(
+                        HttpStatus.BAD_REQUEST, ex.getTechnicalMessage(),
+                        List.of(ErrorDto.builder()
+                                .code(ex.getTechnicalMessage().getCode())
+                                .message(ex.getTechnicalMessage().getMessage())
+                                .parameter(ex.getTechnicalMessage().getParameter())
+                                .build())
+                ));
     }
 
     public Mono<ServerResponse> addProduct(ServerRequest request) {
@@ -70,7 +96,7 @@ public class FranchiseHandler {
 //                .flatMap(branchRepository::save)
 //                .flatMap(branchEntity -> ServerResponse.ok().bodyValue(branchEntity));
 //    }
-//
+
 //    public Mono<ServerResponse> addProduct(ServerRequest request) {
 //        Long branchId = Long.parseLong(request.pathVariable("branchId"));
 //        return request.bodyToMono(ProductEntity.class)

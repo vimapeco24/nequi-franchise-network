@@ -13,7 +13,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @NoArgsConstructor
 @Builder
 @Table("franchises")
-public class FranchiseEntity {
+public class FranchiseEntity extends Auditable {
     @Id
     private Long id;
 

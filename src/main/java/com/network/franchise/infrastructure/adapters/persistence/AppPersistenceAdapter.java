@@ -1,6 +1,6 @@
 package com.network.franchise.infrastructure.adapters.persistence;
 
-import com.network.franchise.domain.api.FranchisePersistenceAdapterPort;
+import com.network.franchise.domain.api.AppPersistenceAdapterPort;
 import com.network.franchise.domain.common.enums.TechnicalMessage;
 import com.network.franchise.domain.common.exceptions.NoContentException;
 import com.network.franchise.domain.common.exceptions.ProcessorException;
@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FranchisePersistenceAdapter implements FranchisePersistenceAdapterPort {
+public class AppPersistenceAdapter implements AppPersistenceAdapterPort {
 
     private final FranchiseRepository franchiseRepository;
     private final BranchRepository branchRepository;
@@ -32,15 +32,19 @@ public class FranchisePersistenceAdapter implements FranchisePersistenceAdapterP
 
     // TODO: Refactorizations
     @Override
-    public Mono<BranchEntity> addBranch(BranchEntity branchEntity, Long franchiseId) {
-        return franchiseRepository.findById(franchiseId)
-                .flatMap(franchiseEntity -> {
-                    branchEntity.setFranchiseId(franchiseEntity.getId());
-                    return branchRepository.save(branchEntity)
-                            .doOnSuccess(savedBranchEntity -> log.info("Branch added: {}", savedBranchEntity))
-                            .doOnError(error -> log.error("Error adding branch: {}", error.getMessage()));
-                })
-                .switchIfEmpty(Mono.error(new RuntimeException("Franchise not found")));
+    public Mono<BranchEntity> addBranch(BranchEntity branchEntity) {
+        System.out.println("BranchEntity: " + branchEntity);
+        return branchRepository.save(branchEntity)
+                .switchIfEmpty(Mono.error(new ProcessorException("Error adding branch", TechnicalMessage.BAD_REQUEST)));
+
+//        return franchiseRepository.findById(franchiseId)
+//                .flatMap(franchiseEntity -> {
+//                    branchEntity.setFranchiseId(franchiseEntity.getId());
+//                    return branchRepository.save(branchEntity)
+//                            .doOnSuccess(savedBranchEntity -> log.info("Branch added: {}", savedBranchEntity))
+//                            .doOnError(error -> log.error("Error adding branch: {}", error.getMessage()));
+//                })
+//                .switchIfEmpty(Mono.error(new RuntimeException("Franchise not found")));
 
 //        Long franchiseId = Long.parseLong(request.pathVariable("franchiseId"));
 //        return request.bodyToMono(Branch.class)
@@ -126,7 +130,7 @@ public class FranchisePersistenceAdapter implements FranchisePersistenceAdapterP
     }
 
     @Override
-    public Mono<Boolean> existsByName(String name) {
+    public Mono<Boolean> existsFranchiseByName(String name) {
         return franchiseRepository.existsByName(name)
                 .switchIfEmpty(Mono.error(new NoContentException(TechnicalMessage.NO_CONTENT)))
                 .flatMap(exists -> {
@@ -135,4 +139,56 @@ public class FranchisePersistenceAdapter implements FranchisePersistenceAdapterP
                 })
                 .switchIfEmpty(Mono.error(new ProcessorException("Error checking franchise existence", TechnicalMessage.BAD_REQUEST)));
     }
+
+//    @Override
+//    public Mono<Boolean> existsInBranchByFranchiseId(Long franchiseId) {
+//        return branchRepository.existsByFranchiseId(franchiseId)
+//                .switchIfEmpty(Mono.error(new NoContentException(TechnicalMessage.NO_CONTENT)))
+//                .flatMap(exists -> {
+//                    if (exists) return Mono.just(true);
+//                    return Mono.just(false);
+//                })
+//                .switchIfEmpty(Mono.error(new ProcessorException("Error checking branch existence", TechnicalMessage.BAD_REQUEST)));
+//    }
+
+    @Override
+    public Mono<Boolean> existsInBranchByFranchiseId(Long franchiseId) {
+        return branchRepository.findBranchEntityByFranchiseId(franchiseId)
+                .hasElements()
+                .flatMap(exists -> Mono.just(true))
+                .switchIfEmpty(Mono.error(new ProcessorException("Error checking branch existence", TechnicalMessage.BAD_REQUEST)));
+    }
+
+    @Override
+    public Mono<Boolean> existsByBranchName(String name) {
+        return branchRepository.existsByName(name)
+                .switchIfEmpty(Mono.error(new NoContentException(TechnicalMessage.NO_CONTENT)))
+                .flatMap(exists -> {
+                    if (exists) return Mono.just(true);
+                    return Mono.just(false);
+                })
+                .switchIfEmpty(Mono.error(new ProcessorException("Error checking branch existence", TechnicalMessage.BAD_REQUEST)));
+    }
+
+    @Override
+    public Mono<Boolean> existsFranchiseByIdExists(Long id) {
+        return franchiseRepository.existsById(id)
+                .switchIfEmpty(Mono.error(new NoContentException(TechnicalMessage.NO_CONTENT)))
+                .flatMap(exists -> {
+                    if (exists) return Mono.just(true);
+                    return Mono.just(false);
+                })
+                .switchIfEmpty(Mono.error(new ProcessorException("Error checking branch existence", TechnicalMessage.BAD_REQUEST)));
+    }
+
+
+//    @Override
+//    public Mono<BranchEntity> findByFranchiseId(Long franchiseId) {
+//        return branchRepository.findById(franchiseId)
+//                .flatMap(branchEntity -> {
+//                    if (branchEntity.getFranchiseId().equals(franchiseId)) return Mono.just(branchEntity);
+//                    return Mono.error(new ProcessorException("Branch does not belong to this franchise", TechnicalMessage.BAD_REQUEST));
+//                })
+//                .switchIfEmpty(Mono.error(new ProcessorException("Error finding branch by franchise ID", TechnicalMessage.BAD_REQUEST)));
+//    }//existsById
 }

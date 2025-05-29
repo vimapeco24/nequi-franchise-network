@@ -13,7 +13,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @NoArgsConstructor
 @Builder(toBuilder = true)
 @Table("branches")
-public class BranchEntity {
+public class BranchEntity extends Auditable {
     @Id
     private Long id;
 

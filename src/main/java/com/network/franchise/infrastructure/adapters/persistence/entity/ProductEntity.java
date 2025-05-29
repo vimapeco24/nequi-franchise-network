@@ -13,7 +13,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @NoArgsConstructor
 @Builder(toBuilder = true)
 @Table("products")
-public class ProductEntity {
+public class ProductEntity extends Auditable {
     @Id
     private Long id;
 
