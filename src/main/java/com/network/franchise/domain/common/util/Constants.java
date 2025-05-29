@@ -8,6 +8,6 @@ public class Constants {
     public static final String CREATE_ERROR = "Error creating resource: {}";
     public static final String UPDATE_ERROR = "Error updating resource: {}";
     public static final String DELETE_ERROR = "Error deleting resource: {}";
-    public static final String NOT_FOUND_ERROR = "Resource not found: {}";
+    public static final String GET_ERROR = "Resource not found: {}";
     public static final String ADD_ERROR = "Error added resource: {}";
 }

@@ -5,6 +5,7 @@ import com.network.franchise.domain.mapper.BranchesDomainMapper;
 import com.network.franchise.domain.mapper.FranchiseDomainMapper;
 import com.network.franchise.domain.mapper.ProductsDomainMapper;
 import com.network.franchise.domain.usecase.command.*;
+import com.network.franchise.domain.usecase.queries.GetTopProductsPerBranchUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.r2dbc.config.EnableR2dbcAuditing;
@@ -40,5 +41,10 @@ public class UseCaseConfig {
     public UpdateStockUseCase updateStockUseCase(AppPersistenceAdapterPort appPersistenceAdapterPort,
                                                  ProductsDomainMapper mapper) {
         return new UpdateStockUseCase(appPersistenceAdapterPort, mapper);
+    }
+
+    @Bean
+    public GetTopProductsPerBranchUseCase getTopProductsPerBranchUseCase(AppPersistenceAdapterPort appPersistenceAdapterPort) {
+        return new GetTopProductsPerBranchUseCase(appPersistenceAdapterPort);
     }
 }

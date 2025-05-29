@@ -4,6 +4,9 @@ import com.network.franchise.domain.api.AppPersistenceAdapterPort;
 import com.network.franchise.domain.common.enums.TechnicalMessage;
 import com.network.franchise.domain.common.exceptions.NoContentException;
 import com.network.franchise.domain.common.exceptions.ProcessorException;
+import com.network.franchise.domain.dto.response.top.Branch;
+import com.network.franchise.domain.dto.response.top.Product;
+import com.network.franchise.domain.dto.response.top.TopProductPerBranchDto;
 import com.network.franchise.infrastructure.adapters.persistence.entity.BranchEntity;
 import com.network.franchise.infrastructure.adapters.persistence.entity.FranchiseEntity;
 import com.network.franchise.infrastructure.adapters.persistence.entity.ProductEntity;
@@ -30,7 +33,6 @@ public class AppPersistenceAdapter implements AppPersistenceAdapterPort {
                 .switchIfEmpty(Mono.error(new ProcessorException("Error saving technology", TechnicalMessage.BAD_REQUEST)));
     }
 
-    // TODO: Refactorizations
     @Override
     public Mono<BranchEntity> addBranch(BranchEntity branchEntity) {
         return branchRepository.save(branchEntity)
@@ -41,14 +43,6 @@ public class AppPersistenceAdapter implements AppPersistenceAdapterPort {
     public Mono<ProductEntity> addProduct(ProductEntity productEntity) {
         return productRepository.save(productEntity)
                 .switchIfEmpty(Mono.error(new ProcessorException("Error adding product", TechnicalMessage.BAD_REQUEST)));
-//        return branchRepository.findById(branchId)
-//                .flatMap(branchEntity -> {
-//                    productEntity.setBranchId(branchEntity.getId());
-//                    return productRepository.save(productEntity)
-//                            .doOnSuccess(savedProductEntity -> log.info("Product added: {}", savedProductEntity))
-//                            .doOnError(error -> log.error("Error adding product: {}", error.getMessage()));
-//                })
-//                .switchIfEmpty(Mono.error(new RuntimeException("Branch not found")));
     }
 
     @Override
@@ -75,19 +69,10 @@ public class AppPersistenceAdapter implements AppPersistenceAdapterPort {
                         return productRepository.delete(productEntity)
                                 .doOnSuccess(aVoid -> log.info("Product deleted: {}", productEntity))
                                 .doOnError(error -> log.error("Error deleting product: {}", error.getMessage()));
-//                                .then(Mono.just(productEntity));
-//                                .doOnSuccess(deletedProductEntity -> log.info("Product deleted: {}", deletedProductEntity))
-//                                .doOnError(error -> log.error("Error deleting product: {}", error.getMessage()));
                     } else {
                         return Mono.error(new ProcessorException("Product does not belong to this branch", TechnicalMessage.BAD_REQUEST));
                     }
                 });
-//                .switchIfEmpty(Mono.error(new RuntimeException("Product not found")));
-
-//        Long branchId = Long.parseLong(request.pathVariable("branchId"));
-//        Long productId = Long.parseLong(request.pathVariable("productId"));
-//        return productRepository.deleteByBranchIdAndId(branchId, productId)
-//                .then(ServerResponse.noContent().build());
     }
 
     @Override
@@ -100,31 +85,25 @@ public class AppPersistenceAdapter implements AppPersistenceAdapterPort {
                             .doOnError(error -> log.error("Error updating product: {}", error.getMessage()));
                 })
                 .switchIfEmpty(Mono.error(new RuntimeException("Product not found")));
-
-//        Long productId = Long.parseLong(request.pathVariable("productId"));
-//        return productRepository.findById(productId)
-//                .zipWith(request.bodyToMono(Product.class))
-//                .map(tuple -> {
-//                    Product existing = tuple.getT1();
-//                    int newStock = tuple.getT2().getStock();
-//                    existing.setStock(newStock);
-//                    return existing;
-//                })
-//                .flatMap(productRepository::save)
-//                .flatMap(product -> ServerResponse.ok().bodyValue(product));
     }
 
     @Override
-    public Mono<BranchEntity> getTopProductsPerBranch(Long franchiseId) {
-        return null;
-
-
-//        Long franchiseId = Long.parseLong(request.pathVariable("franchiseId"));
-//        return branchRepository.findByFranchiseId(franchiseId)
-//                .flatMap(branch -> productRepository.findTopByBranchIdOrderByStockDesc(branch.getId())
-//                        .map(product -> Map.of("branch", branch, "product", product)))
-//                .collectList()
-//                .flatMap(results -> ServerResponse.ok().bodyValue(results));
+    public Mono<TopProductPerBranchDto> getTopProductsPerBranch(Long franchiseId) {
+        return findByFranchiseId(franchiseId)
+                .flatMap(branch -> productRepository.findTopByBranchIdOrderByStockDesc(branch.getId())
+                                .map(productEntity -> TopProductPerBranchDto.builder()
+                                        .branch(Branch.builder()
+                                                .franchiseId(Math.toIntExact(branch.getId()))
+                                                .name(branch.getName())
+                                                .id(Math.toIntExact(branch.getId()))
+                                                .build())
+                                        .product(Product.builder()
+                                                .stock(productEntity.getStock())
+                                                .name(productEntity.getName())
+                                                .id(Math.toIntExact(productEntity.getId()))
+                                                .branchId(Math.toIntExact(productEntity.getBranchId()))
+                                                .build())
+                                        .build()));
     }
 
     @Override
@@ -137,17 +116,6 @@ public class AppPersistenceAdapter implements AppPersistenceAdapterPort {
                 })
                 .switchIfEmpty(Mono.error(new ProcessorException("Error checking franchise existence", TechnicalMessage.BAD_REQUEST)));
     }
-
-//    @Override
-//    public Mono<Boolean> existsInBranchByFranchiseId(Long franchiseId) {
-//        return branchRepository.existsByFranchiseId(franchiseId)
-//                .switchIfEmpty(Mono.error(new NoContentException(TechnicalMessage.NO_CONTENT)))
-//                .flatMap(exists -> {
-//                    if (exists) return Mono.just(true);
-//                    return Mono.just(false);
-//                })
-//                .switchIfEmpty(Mono.error(new ProcessorException("Error checking branch existence", TechnicalMessage.BAD_REQUEST)));
-//    }
 
     @Override
     public Mono<Boolean> existsInBranchByFranchiseId(Long franchiseId) {
@@ -210,13 +178,12 @@ public class AppPersistenceAdapter implements AppPersistenceAdapterPort {
     }
 
 
-//    @Override
-//    public Mono<BranchEntity> findByFranchiseId(Long franchiseId) {
-//        return branchRepository.findById(franchiseId)
-//                .flatMap(branchEntity -> {
-//                    if (branchEntity.getFranchiseId().equals(franchiseId)) return Mono.just(branchEntity);
-//                    return Mono.error(new ProcessorException("Branch does not belong to this franchise", TechnicalMessage.BAD_REQUEST));
-//                })
-//                .switchIfEmpty(Mono.error(new ProcessorException("Error finding branch by franchise ID", TechnicalMessage.BAD_REQUEST)));
-//    }//existsById
+    @Override
+    public Mono<BranchEntity> findByFranchiseId(Long franchiseId) {
+        return branchRepository.findById(franchiseId)
+                .flatMap(branchEntity -> {
+                    if (branchEntity.getFranchiseId().equals(franchiseId)) return Mono.just(branchEntity);
+                    return Mono.error(new ProcessorException("Branch does not belong to this franchise", TechnicalMessage.BAD_REQUEST));
+                });
+    }
 }
