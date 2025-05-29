@@ -1,4 +1,4 @@
-package com.network.franchise.domain.usecase;
+package com.network.franchise.domain.usecase.command;
 
 import com.network.franchise.domain.api.FranchisePersistenceAdapterPort;
 import com.network.franchise.domain.common.enums.TechnicalMessage;
@@ -7,7 +7,7 @@ import com.network.franchise.domain.common.exceptions.DuplicateException;
 import com.network.franchise.domain.mapper.FranchiseDomainMapper;
 import com.network.franchise.domain.model.Franchise;
 import com.network.franchise.domain.spi.CreateFranchiseServicePort;
-import com.network.franchise.dto.response.CreateFranchiseResponseDto;
+import com.network.franchise.domain.dto.response.CreateFranchiseResponseDto;
 import reactor.core.publisher.Mono;
 
 public class CreateFranchiseUseCase implements CreateFranchiseServicePort {

@@ -30,7 +30,7 @@ public class FranchisePersistenceAdapter implements FranchisePersistenceAdapterP
                 .switchIfEmpty(Mono.error(new ProcessorException("Error saving technology", TechnicalMessage.BAD_REQUEST)));
     }
 
-
+    // TODO: Refactorizations
     @Override
     public Mono<BranchEntity> addBranch(BranchEntity branchEntity, Long franchiseId) {
         return franchiseRepository.findById(franchiseId)
@@ -42,6 +42,11 @@ public class FranchisePersistenceAdapter implements FranchisePersistenceAdapterP
                 })
                 .switchIfEmpty(Mono.error(new RuntimeException("Franchise not found")));
 
+//        Long franchiseId = Long.parseLong(request.pathVariable("franchiseId"));
+//        return request.bodyToMono(Branch.class)
+//                .map(branch -> branch.toBuilder().franchiseId(franchiseId).build())
+//                .flatMap(branchRepository::save)
+//                .flatMap(branch -> ServerResponse.ok().bodyValue(branch));
     }
 
     @Override
@@ -55,7 +60,11 @@ public class FranchisePersistenceAdapter implements FranchisePersistenceAdapterP
                 })
                 .switchIfEmpty(Mono.error(new RuntimeException("Branch not found")));
 
-
+//        Long branchId = Long.parseLong(request.pathVariable("branchId"));
+//        return request.bodyToMono(Product.class)
+//                .map(product -> product.toBuilder().branchId(branchId).build())
+//                .flatMap(productRepository::save)
+//                .flatMap(product -> ServerResponse.ok().bodyValue(product));
     }
 
     @Override
@@ -73,7 +82,10 @@ public class FranchisePersistenceAdapter implements FranchisePersistenceAdapterP
                 })
                 .switchIfEmpty(Mono.error(new RuntimeException("Product not found")));
 
-
+//        Long branchId = Long.parseLong(request.pathVariable("branchId"));
+//        Long productId = Long.parseLong(request.pathVariable("productId"));
+//        return productRepository.deleteByBranchIdAndId(branchId, productId)
+//                .then(ServerResponse.noContent().build());
     }
 
     @Override
@@ -87,13 +99,30 @@ public class FranchisePersistenceAdapter implements FranchisePersistenceAdapterP
                 })
                 .switchIfEmpty(Mono.error(new RuntimeException("Product not found")));
 
-
+//        Long productId = Long.parseLong(request.pathVariable("productId"));
+//        return productRepository.findById(productId)
+//                .zipWith(request.bodyToMono(Product.class))
+//                .map(tuple -> {
+//                    Product existing = tuple.getT1();
+//                    int newStock = tuple.getT2().getStock();
+//                    existing.setStock(newStock);
+//                    return existing;
+//                })
+//                .flatMap(productRepository::save)
+//                .flatMap(product -> ServerResponse.ok().bodyValue(product));
     }
 
     @Override
     public Mono<BranchEntity> getTopProductsPerBranch(Long franchiseId) {
         return null;
 
+
+//        Long franchiseId = Long.parseLong(request.pathVariable("franchiseId"));
+//        return branchRepository.findByFranchiseId(franchiseId)
+//                .flatMap(branch -> productRepository.findTopByBranchIdOrderByStockDesc(branch.getId())
+//                        .map(product -> Map.of("branch", branch, "product", product)))
+//                .collectList()
+//                .flatMap(results -> ServerResponse.ok().bodyValue(results));
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.network.franchise.dto.response;
+package com.network.franchise.domain.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

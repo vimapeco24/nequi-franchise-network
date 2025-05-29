@@ -1,9 +1,8 @@
 package com.network.franchise.infrastructure.inbound.router;
 
 import com.network.franchise.domain.common.ErrorDto;
-import com.network.franchise.domain.model.Franchise;
-import com.network.franchise.dto.request.CreateFranchiseRequestDto;
-import com.network.franchise.dto.response.CreateFranchiseResponseDto;
+import com.network.franchise.domain.dto.request.CreateFranchiseRequestDto;
+import com.network.franchise.domain.dto.response.CreateFranchiseResponseDto;
 import com.network.franchise.infrastructure.inbound.handler.FranchiseHandler;
 import org.springdoc.core.annotations.RouterOperation;
 import org.springdoc.core.annotations.RouterOperations;
@@ -16,6 +15,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 @Configuration
 public class FranchiseRouter {
+
     @Bean
     @RouterOperations({
             @RouterOperation(
@@ -76,6 +76,11 @@ public class FranchiseRouter {
     public RouterFunction<ServerResponse> franchiseRoutes(FranchiseHandler handler) {
         return RouterFunctions.route()
                 .POST("/api/v1/franchises", handler::createFranchise)
+                .POST("/franchises/{franchiseId}/branches", handler::addBranch)
+                .POST("/branches/{branchId}/products", handler::addProduct)
+                .DELETE("/branches/{branchId}/products/{productId}", handler::deleteProduct)
+                .PUT("/products/{productId}/stock", handler::updateStock)
+                .GET("/franchises/{franchiseId}/top-products", handler::getTopProductsPerBranch)
                 .build();
     }
 }
