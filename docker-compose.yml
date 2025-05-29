@@ -1,0 +1,17 @@
+services:
+
+  # [PostgreSQL] Database service
+  postgres-franchises:
+    image: postgres:latest
+    container_name: postgres-nequi-franchises-db
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=username
+      - POSTGRES_PASSWORD=user_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
