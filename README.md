@@ -1,4 +1,4 @@
-# franchiseEntity-network-management
+# Franchise Network Management Application Services
 
 The Franchise Network Management project is a Spring Boot application that provides a RESTful API for managing franchises, branches, and products. The application allows users to create franchises, add branches to franchises, manage products in branches, and track product stock levels.
 
@@ -20,9 +20,9 @@ The Franchise Network Management project is a Spring Boot application that provi
 2. Navigate to the project directory
 3. Select the desired profile:
    - `local` for local development
-   - `dev` for development (no shared by author, use secrets or keyvault)
-   - `test` for testing (no shared by author, use secrets or keyvault)
-   - `prod` for production (no shared by author, use secrets or keyvault)
+   - `dev` for development (no shared by author, use secrets, or keyvault)
+   - `test` for testing (no shared by author, use secrets, or keyvault)
+   - `prod` for production (no shared by author, use secrets, or keyvault)
 4. Run the following command to start the application:
    ```
    ./gradlew bootRun --args='--spring.profiles.active=dev'
@@ -53,6 +53,34 @@ The code coverage report is generated using JaCoCo and can be found in the `buil
 ./gradlew clean test jacocoTestReport
 ```
 ![jococo-report.png](jococo-report.png)
+
+### Amazon ECR & Docker
+
+The application is containerized using Docker and can be deployed to Amazon Elastic Container Registry (ECR). The following commands can be used to build and push the Docker image to ECR:
+- docker build -t franchise-network-management:latest .
+
+The application is containerized using Docker and can be deployed to Amazon Elastic Container Registry (ECR). The following commands can be used to build and push the Docker image to ECR:
+- aws ecr create-repository --repository-name franchise-network-management
+
+Tag the Docker image with the ECR repository URI:
+- docker tag franchise-network-management:latest 221986013097.dkr.ecr.us-east-1.amazonaws.com/franchise-network-management:latest
+
+Build the Docker image:
+- aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 221986013097.dkr.ecr.us-east-1.amazonaws.com
+
+Push the Docker image to ECR:
+- docker push 221986013097.dkr.ecr.us-east-1.amazonaws.com/franchise-network-management:latest
+
+### Deployment with Terraform in AWS
+
+The deployment of the application in AWS is done using Terraform. The Terraform code is located in the `terraform` directory. The Terraform code provisions the following resources:
+
+- VPC
+- Subnets
+- Security Groups
+- EC2 Instances
+- RDS Instances
+- Load Balancers
 
 ### Author
 
