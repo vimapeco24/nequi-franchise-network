@@ -11,7 +11,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @Builder(toBuilder = true)
 @Table("products")
 @EqualsAndHashCode(callSuper=false)
-public class ProductEntity extends Auditable {
+public class ProductEntity {
     @Id
     private Long id;
 

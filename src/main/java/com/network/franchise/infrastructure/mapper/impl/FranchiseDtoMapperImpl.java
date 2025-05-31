@@ -1,7 +1,7 @@
-package com.network.franchise.domain.mapper.impl;
+package com.network.franchise.infrastructure.mapper.impl;
 
 import com.network.franchise.domain.dto.response.CreateFranchiseResponseDto;
-import com.network.franchise.domain.mapper.FranchiseDtoMapper;
+import com.network.franchise.infrastructure.mapper.FranchiseDtoMapper;
 import com.network.franchise.domain.model.Franchise;
 import com.network.franchise.infrastructure.adapters.persistence.entity.FranchiseEntity;
 import org.springframework.stereotype.Component;

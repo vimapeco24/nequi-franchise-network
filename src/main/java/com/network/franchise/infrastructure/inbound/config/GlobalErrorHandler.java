@@ -1,5 +1,6 @@
-package com.network.franchise.domain.common;
+package com.network.franchise.infrastructure.inbound.config;
 
+import com.network.franchise.domain.common.ErrorDto;
 import com.network.franchise.domain.common.exceptions.*;
 import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;

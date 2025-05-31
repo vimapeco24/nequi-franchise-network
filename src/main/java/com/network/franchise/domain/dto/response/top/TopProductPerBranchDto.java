@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TopProductPerBranchDto {
-    private Branch branch;
-    private Product product;
+    private BranchTop branchTop;
+    private ProductTop productTop;
 }

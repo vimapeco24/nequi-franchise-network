@@ -11,7 +11,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @Builder
 @Table("franchises")
 @EqualsAndHashCode(callSuper=false)
-public class FranchiseEntity extends Auditable {
+public class FranchiseEntity {
     @Id
     private Long id;
 

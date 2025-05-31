@@ -1,7 +1,9 @@
 package com.network.franchise.infrastructure.inbound.handler;
 
 import com.network.franchise.domain.common.ErrorDto;
+import com.network.franchise.domain.common.enums.TechnicalMessage;
 import com.network.franchise.domain.common.exceptions.BusinessException;
+import com.network.franchise.domain.common.exceptions.ProcessorException;
 import com.network.franchise.domain.dto.request.*;
 import com.network.franchise.infrastructure.inbound.mapper.BranchesMapper;
 import com.network.franchise.infrastructure.inbound.mapper.FranchiseMapper;
@@ -44,7 +46,8 @@ public class AppHandler {
 
     public Mono<ServerResponse> createFranchise(ServerRequest request) {
         return request.bodyToMono(CreateFranchiseRequestDto.class)
-                .flatMap(req -> createFranchiseServicePort.createTechnology(franchiseMapper.toDomainFromFranchiseRequestDto(req)))
+                .flatMap(req -> createFranchiseServicePort
+                        .createTechnology(franchiseMapper.toDomainFromFranchiseRequestDto(req)))
                 .flatMap(franchise -> ServerResponse.ok().bodyValue(franchise))
                 .doOnError(error -> log.error(CREATE_ERROR, error.getMessage()))
                 .onErrorResume(BusinessException.class, ex -> buildErrorResponse(
@@ -105,10 +108,19 @@ public class AppHandler {
     }
 
     public Mono<ServerResponse> deleteProduct(ServerRequest request) {
-        Long branchId = Long.parseLong(request.pathVariable("branchId"));
-        Long productId = Long.parseLong(request.pathVariable("productId"));
-        return deleteProductServicePort.deleteProduct(branchId, productId)
-                .then(ServerResponse.accepted().build())
+        return Mono.just(request.pathVariable("branchId"))
+                .filter(branchIdStr -> !branchIdStr.isBlank() && branchIdStr.matches("\\d+"))
+                .switchIfEmpty(Mono.error(new BusinessException(TechnicalMessage.INVALID_REQUEST)))
+                .zipWith(Mono.just(request.pathVariable("productId"))
+                        .filter(productIdStr -> !productIdStr.isBlank() && productIdStr.matches("\\d+"))
+                        .switchIfEmpty(Mono.error(new BusinessException(TechnicalMessage.INVALID_REQUEST)))
+                )
+                .flatMap(tuple -> {
+                    Long branchId = Long.parseLong(tuple.getT1());
+                    Long productId = Long.parseLong(tuple.getT2());
+                    return deleteProductServicePort.deleteProduct(branchId, productId)
+                            .then(ServerResponse.accepted().build());
+                })
                 .doOnError(error -> log.error(DELETE_ERROR, error.getMessage()))
                 .onErrorResume(BusinessException.class, ex -> buildErrorResponse(
                         HttpStatus.BAD_REQUEST, ex.getTechnicalMessage(),
@@ -121,16 +133,22 @@ public class AppHandler {
     }
 
     public Mono<ServerResponse> updateStock(ServerRequest request) {
-        Long productId = Long.parseLong(request.pathVariable("productId"));
-        return request.bodyToMono(UpdateProductStockRequestDto.class)
-                .flatMap(dto -> {
-                    Product product = Product.builder()
-                            .id(productId)
-                            .stock(Math.toIntExact(dto.getStock()))
-                            .build();
-                    return updateStockServicePort.updateStock(productsMapper.toDomainFromUpdateProductRequestDto(product, productId))
-                            .flatMap(res -> ServerResponse.ok().bodyValue(res));
-                })
+        return Mono.just(request.pathVariable("productId"))
+                .filter(productIdStr -> !productIdStr.isBlank() && productIdStr.matches("\\d+"))
+                .switchIfEmpty(Mono.error(new BusinessException(TechnicalMessage.INVALID_REQUEST)))
+                .map(Long::parseLong)
+                .flatMap(productId ->
+                        request.bodyToMono(UpdateProductStockRequestDto.class)
+                                .flatMap(dto -> {
+                                    Product product = Product.builder()
+                                            .id(productId)
+                                            .stock(Math.toIntExact(dto.getStock()))
+                                            .build();
+                                    return updateStockServicePort
+                                            .updateStock(productsMapper.toDomainFromUpdateProductRequestDto(product, productId))
+                                            .flatMap(res -> ServerResponse.ok().bodyValue(res));
+                                })
+                )
                 .doOnError(error -> log.error(UPDATE_ERROR, error.getMessage()))
                 .onErrorResume(BusinessException.class, ex -> buildErrorResponse(
                         HttpStatus.BAD_REQUEST, ex.getTechnicalMessage(),
@@ -145,6 +163,7 @@ public class AppHandler {
     public Mono<ServerResponse> getTopProductsPerBranch(ServerRequest request) {
         Long franchiseId = Long.parseLong(request.pathVariable("franchiseId"));
         return getTopProductsPerBranchServicePort.getTopProductsPerBranch(franchiseId)
+                .collectList()
                 .flatMap(res -> ServerResponse.ok().bodyValue(res))
                 .doOnError(error -> log.error(GET_ERROR, error.getMessage()))
                 .onErrorResume(BusinessException.class, ex -> buildErrorResponse(

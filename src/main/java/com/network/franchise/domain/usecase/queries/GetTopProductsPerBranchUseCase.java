@@ -3,8 +3,9 @@ package com.network.franchise.domain.usecase.queries;
 import com.network.franchise.domain.api.AppPersistenceAdapterPort;
 import com.network.franchise.domain.common.enums.TechnicalMessage;
 import com.network.franchise.domain.common.exceptions.NotFoundException;
-import com.network.franchise.domain.dto.response.top.TopProductPerBranchDto;
+import com.network.franchise.domain.dto.response.newtop.TopProductByBranchByFranchiseResponseDto;
 import com.network.franchise.domain.spi.GetTopProductsPerBranchServicePort;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class GetTopProductsPerBranchUseCase implements GetTopProductsPerBranchServicePort {
@@ -15,10 +16,12 @@ public class GetTopProductsPerBranchUseCase implements GetTopProductsPerBranchSe
         this.appPersistenceAdapterPort = appPersistenceAdapterPort;
     }
 
+    // TODO: obtener lista de producto top de cada sucursal de la franquicia solicitada.
     @Override
-    public Mono<TopProductPerBranchDto> getTopProductsPerBranch(Long franchiseId) {
+    public Flux<TopProductByBranchByFranchiseResponseDto> getTopProductsPerBranch(Long franchiseId) {
         return appPersistenceAdapterPort.findByFranchiseId(franchiseId)
-                .flatMap(branch -> appPersistenceAdapterPort.getTopProductsPerBranch(franchiseId))
-                .switchIfEmpty(Mono.error(new NotFoundException(TechnicalMessage.NOT_FOUND, "Franchise ID: " + franchiseId + " does not exist")));
+                .flatMapMany(branch -> appPersistenceAdapterPort.getTopProductsPerBranch(franchiseId))
+                //.switchIfEmpty(Mono.empty());
+                .switchIfEmpty(Flux.error(new NotFoundException(TechnicalMessage.NOT_FOUND, "Franchise ID: " + franchiseId + " does not exist")));
     }
 }

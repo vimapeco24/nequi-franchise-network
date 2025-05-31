@@ -1,24 +1,24 @@
 package com.network.franchise.domain.api;
 
-import com.network.franchise.domain.dto.response.top.TopProductPerBranchDto;
+import com.network.franchise.domain.dto.response.newtop.TopProductByBranchByFranchiseResponseDto;
+import com.network.franchise.domain.model.Branch;
+import com.network.franchise.domain.model.Franchise;
+import com.network.franchise.domain.model.Product;
 import com.network.franchise.infrastructure.adapters.persistence.entity.BranchEntity;
-import com.network.franchise.infrastructure.adapters.persistence.entity.FranchiseEntity;
-import com.network.franchise.infrastructure.adapters.persistence.entity.ProductEntity;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface AppPersistenceAdapterPort {
-    Mono<FranchiseEntity> createFranchise(FranchiseEntity franchiseEntity);
-    Mono<BranchEntity> addBranch(BranchEntity branchEntity);
-    Mono<ProductEntity> addProduct(ProductEntity productEntity);
-
-    Mono<ProductEntity> findProductById(Long productId);
-
-    Mono<Boolean> existsByProductId(Long productId);
+    Mono<Franchise> createFranchise(Franchise franchise);
+    Mono<Branch> addBranch(Branch branchEntity);
+    Mono<Product> addProduct(Product product);
     Mono<Void> deleteProduct(Long productId, Long branchId);
+    Mono<Product> updateProduct(Product product, Long productId);
+    Flux<TopProductByBranchByFranchiseResponseDto> getTopProductsPerBranch(Long franchiseId);
+    Mono<Long> updateFranchiseName(Franchise request);
 
-    Mono<ProductEntity> updateProduct(ProductEntity productEntity, Long productId);
-    Mono<TopProductPerBranchDto> getTopProductsPerBranch(Long franchiseId);
-
+    Mono<Product> findProductById(Long productId);
+    Mono<Boolean> existsByProductId(Long productId);
     Mono<Boolean> existsFranchiseByName(String name);
     Mono<Boolean> existsInBranchByFranchiseId(Long franchiseId);
     Mono<Boolean> existsByBranchName(String name);
@@ -26,8 +26,6 @@ public interface AppPersistenceAdapterPort {
     Mono<Boolean> existsInProductByBranchId(Long branchId);
     Mono<Boolean> existsByProductName(String name);
     Mono<Boolean> existsBranchesByIdExists(Long branchId);
-
     Mono<BranchEntity> findByFranchiseId(Long franchiseId);
-
-    Mono<Long> updateFranchiseName(FranchiseEntity request);
+    Mono<Boolean> existsByNameAndBranchId(String name, Long branchId);
 }

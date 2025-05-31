@@ -11,7 +11,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @Builder(toBuilder = true)
 @Table("branches")
 @EqualsAndHashCode(callSuper=false)
-public class BranchEntity extends Auditable {
+public class BranchEntity {
     @Id
     private Long id;
 

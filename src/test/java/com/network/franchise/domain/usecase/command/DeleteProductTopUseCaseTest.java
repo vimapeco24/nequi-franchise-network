@@ -10,7 +10,7 @@ import reactor.test.StepVerifier;
 
 import static org.mockito.Mockito.*;
 
-public class DeleteProductUseCaseTest {
+public class DeleteProductTopUseCaseTest {
 
     private AppPersistenceAdapterPort appPersistenceAdapterPort;
     private DeleteProductServicePort deleteProductUseCase;

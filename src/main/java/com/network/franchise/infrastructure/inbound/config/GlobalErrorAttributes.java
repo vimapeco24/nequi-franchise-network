@@ -1,4 +1,4 @@
-package com.network.franchise.domain.common;
+package com.network.franchise.infrastructure.inbound.config;
 
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.reactive.error.ErrorAttributes;
