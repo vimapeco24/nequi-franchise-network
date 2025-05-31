@@ -1,6 +1,8 @@
 package com.network.franchise.domain.usecase.command;
 
 import com.network.franchise.domain.api.AppPersistenceAdapterPort;
+import com.network.franchise.domain.common.enums.TechnicalMessage;
+import com.network.franchise.domain.common.exceptions.NotFoundException;
 import com.network.franchise.domain.spi.DeleteProductServicePort;
 import reactor.core.publisher.Mono;
 
@@ -16,10 +18,10 @@ public class DeleteProductUseCase implements DeleteProductServicePort {
     public Mono<Void> deleteProduct(Long branchId, Long productId) {
         return appPersistenceAdapterPort.existsByProductId(productId)
                 .flatMap(exists -> {
-                    if (!exists) return Mono.error(new IllegalArgumentException("Product ID: " + productId + " does not exist"));
+                    if (!exists) return Mono.error(new NotFoundException(TechnicalMessage.NOT_FOUND, "Product ID: " + productId + " does not exist"));
                     return appPersistenceAdapterPort.existsBranchesByIdExists(branchId)
                             .flatMap(branchExists -> {
-                                if (!branchExists) return Mono.error(new IllegalArgumentException("Branch ID: " + branchId + " does not exist"));
+                                if (!branchExists) return Mono.error(new NotFoundException(TechnicalMessage.NOT_FOUND, "Branch ID: " + branchId + " does not exist"));
                                 return appPersistenceAdapterPort.deleteProduct(branchId, productId);
                             });
 

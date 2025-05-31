@@ -1,8 +1,12 @@
 package com.network.franchise.domain.usecase.command;
 
 import com.network.franchise.domain.api.AppPersistenceAdapterPort;
+import com.network.franchise.domain.common.enums.TechnicalMessage;
+import com.network.franchise.domain.common.exceptions.NotFoundException;
+import com.network.franchise.domain.spi.DeleteProductServicePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -11,7 +15,10 @@ import static org.mockito.Mockito.*;
 public class DeleteProductUseCaseTest {
 
     private AppPersistenceAdapterPort appPersistenceAdapterPort;
-    private DeleteProductUseCase deleteProductUseCase;
+    private DeleteProductServicePort deleteProductUseCase;
+
+    private final Long productId = 1L;
+    private final Long branchId = 100L;
 
     @BeforeEach
     void setUp() {
@@ -20,10 +27,7 @@ public class DeleteProductUseCaseTest {
     }
 
     @Test
-    void deleteProduct_success() {
-        Long branchId = 1L;
-        Long productId = 10L;
-
+    void shouldDeleteProductWhenProductAndBranchExist() {
         when(appPersistenceAdapterPort.existsByProductId(productId)).thenReturn(Mono.just(true));
         when(appPersistenceAdapterPort.existsBranchesByIdExists(branchId)).thenReturn(Mono.just(true));
         when(appPersistenceAdapterPort.deleteProduct(branchId, productId)).thenReturn(Mono.empty());
@@ -31,39 +35,41 @@ public class DeleteProductUseCaseTest {
         StepVerifier.create(deleteProductUseCase.deleteProduct(branchId, productId))
                 .verifyComplete();
 
+        verify(appPersistenceAdapterPort).existsByProductId(productId);
+        verify(appPersistenceAdapterPort).existsBranchesByIdExists(branchId);
         verify(appPersistenceAdapterPort).deleteProduct(branchId, productId);
     }
 
     @Test
-    void deleteProduct_productNotExists() {
-        Long branchId = 1L;
-        Long productId = 99L;
-
+    void shouldReturnErrorWhenProductDoesNotExist() {
         when(appPersistenceAdapterPort.existsByProductId(productId)).thenReturn(Mono.just(false));
 
         StepVerifier.create(deleteProductUseCase.deleteProduct(branchId, productId))
-                .expectErrorMatches(throwable ->
-                        throwable instanceof IllegalArgumentException &&
-                                throwable.getMessage().equals("Product ID: 99 does not exist"))
+                .expectErrorSatisfies(error -> {
+                    assert error instanceof NotFoundException;
+                    assert error.getMessage().contains("Product ID: " + productId + " does not exist");
+                })
                 .verify();
 
+        verify(appPersistenceAdapterPort).existsByProductId(productId);
+        verify(appPersistenceAdapterPort, never()).existsBranchesByIdExists(any());
         verify(appPersistenceAdapterPort, never()).deleteProduct(any(), any());
     }
 
     @Test
-    void deleteProduct_branchNotExists() {
-        Long branchId = 2L;
-        Long productId = 20L;
-
+    void shouldReturnErrorWhenBranchDoesNotExist() {
         when(appPersistenceAdapterPort.existsByProductId(productId)).thenReturn(Mono.just(true));
         when(appPersistenceAdapterPort.existsBranchesByIdExists(branchId)).thenReturn(Mono.just(false));
 
         StepVerifier.create(deleteProductUseCase.deleteProduct(branchId, productId))
-                .expectErrorMatches(throwable ->
-                        throwable instanceof IllegalArgumentException &&
-                                throwable.getMessage().equals("Branch ID: 2 does not exist"))
+                .expectErrorSatisfies(error -> {
+                    assert error instanceof NotFoundException;
+                    assert error.getMessage().contains("Branch ID: " + branchId + " does not exist");
+                })
                 .verify();
 
+        verify(appPersistenceAdapterPort).existsByProductId(productId);
+        verify(appPersistenceAdapterPort).existsBranchesByIdExists(branchId);
         verify(appPersistenceAdapterPort, never()).deleteProduct(any(), any());
     }
 }

@@ -28,4 +28,6 @@ public interface AppPersistenceAdapterPort {
     Mono<Boolean> existsBranchesByIdExists(Long branchId);
 
     Mono<BranchEntity> findByFranchiseId(Long franchiseId);
+
+    Mono<Long> updateFranchiseName(FranchiseEntity request);
 }

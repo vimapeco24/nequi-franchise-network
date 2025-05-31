@@ -5,7 +5,7 @@ import com.network.franchise.domain.common.enums.TechnicalMessage;
 import com.network.franchise.domain.common.exceptions.BusinessException;
 import com.network.franchise.domain.common.exceptions.NotFoundException;
 import com.network.franchise.domain.dto.response.CreateProductResponseDto;
-import com.network.franchise.domain.mapper.ProductsDomainMapper;
+import com.network.franchise.infrastructure.inbound.mapper.ProductsMapper;
 import com.network.franchise.domain.model.Product;
 import com.network.franchise.domain.spi.UpdateStockServicePort;
 import reactor.core.publisher.Mono;
@@ -13,9 +13,9 @@ import reactor.core.publisher.Mono;
 public class UpdateStockUseCase implements UpdateStockServicePort {
 
     private final AppPersistenceAdapterPort appPersistenceAdapterPort;
-    private final ProductsDomainMapper mapper;
+    private final ProductsMapper mapper;
 
-    public UpdateStockUseCase(AppPersistenceAdapterPort appPersistenceAdapterPort, ProductsDomainMapper mapper) {
+    public UpdateStockUseCase(AppPersistenceAdapterPort appPersistenceAdapterPort, ProductsMapper mapper) {
         this.appPersistenceAdapterPort = appPersistenceAdapterPort;
         this.mapper = mapper;
     }

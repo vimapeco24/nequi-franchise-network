@@ -15,6 +15,7 @@ import com.network.franchise.infrastructure.adapters.persistence.repository.Fran
 import com.network.franchise.infrastructure.adapters.persistence.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -26,6 +27,7 @@ public class AppPersistenceAdapter implements AppPersistenceAdapterPort {
     private final FranchiseRepository franchiseRepository;
     private final BranchRepository branchRepository;
     private final ProductRepository productRepository;
+    private final R2dbcEntityTemplate template;
 
     @Override
     public Mono<FranchiseEntity> createFranchise(FranchiseEntity franchiseEntity) {
@@ -63,16 +65,7 @@ public class AppPersistenceAdapter implements AppPersistenceAdapterPort {
 
     @Override
     public Mono<Void> deleteProduct(Long productId, Long branchId) {
-        return productRepository.findById(productId)
-                .flatMap(productEntity -> {
-                    if (productEntity.getBranchId().equals(branchId)) {
-                        return productRepository.delete(productEntity)
-                                .doOnSuccess(aVoid -> log.info("Product deleted: {}", productEntity))
-                                .doOnError(error -> log.error("Error deleting product: {}", error.getMessage()));
-                    } else {
-                        return Mono.error(new ProcessorException("Product does not belong to this branch", TechnicalMessage.BAD_REQUEST));
-                    }
-                });
+        return productRepository.deleteProduct(productId, branchId);
     }
 
     @Override
@@ -80,11 +73,9 @@ public class AppPersistenceAdapter implements AppPersistenceAdapterPort {
         return productRepository.findById(productId)
                 .flatMap(existingProductEntity -> {
                     productEntity.setId(existingProductEntity.getId());
-                    return productRepository.save(productEntity)
-                            .doOnSuccess(updatedProductEntity -> log.info("Product updated: {}", updatedProductEntity))
-                            .doOnError(error -> log.error("Error updating product: {}", error.getMessage()));
+                    return productRepository.save(productEntity);
                 })
-                .switchIfEmpty(Mono.error(new RuntimeException("Product not found")));
+                .switchIfEmpty(Mono.error(new ProcessorException("Error updating product", TechnicalMessage.BAD_REQUEST)));
     }
 
     @Override
@@ -185,5 +176,22 @@ public class AppPersistenceAdapter implements AppPersistenceAdapterPort {
                     if (branchEntity.getFranchiseId().equals(franchiseId)) return Mono.just(branchEntity);
                     return Mono.error(new ProcessorException("Branch does not belong to this franchise", TechnicalMessage.BAD_REQUEST));
                 });
+    }
+
+    @Override
+    public Mono<Long> updateFranchiseName(FranchiseEntity request) {
+        return franchiseRepository.findById(request.getId())
+                .flatMap(existingProductEntity -> updateFranchiseNameRepository(request.getId(), request.getName()));
+    }
+
+    public Mono<Long> updateFranchiseNameRepository(Long id, String name) {
+        String sql = "UPDATE public.franchises SET name = :name, updated_at = CURRENT_TIMESTAMP WHERE id = :id";
+        return template
+                .getDatabaseClient()
+                .sql(sql)
+                .bind("name", name)
+                .bind("id", id)
+                .fetch()
+                .rowsUpdated();
     }
 }

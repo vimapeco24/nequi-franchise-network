@@ -1,4 +1,4 @@
-package com.network.franchise.domain.mapper;
+package com.network.franchise.infrastructure.inbound.mapper;
 
 import com.network.franchise.domain.dto.response.CreateBranchResponseDto;
 import com.network.franchise.domain.model.Branch;
@@ -6,7 +6,7 @@ import com.network.franchise.infrastructure.adapters.persistence.entity.BranchEn
 import org.springframework.stereotype.Component;
 
 @Component
-public class BranchesDomainMapper {
+public class BranchesMapper {
 
     public Branch toDomainFromBranchRequestDto(Branch branch, Long franchiseId) {
         if (branch == null || franchiseId == null) return null;

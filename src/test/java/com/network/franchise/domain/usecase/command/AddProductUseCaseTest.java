@@ -6,7 +6,7 @@ import com.network.franchise.domain.common.exceptions.BusinessException;
 import com.network.franchise.domain.common.exceptions.DuplicateException;
 import com.network.franchise.domain.common.exceptions.NotFoundException;
 import com.network.franchise.domain.dto.response.CreateProductResponseDto;
-import com.network.franchise.domain.mapper.ProductsDomainMapper;
+import com.network.franchise.infrastructure.inbound.mapper.ProductsMapper;
 import com.network.franchise.domain.model.Product;
 import com.network.franchise.infrastructure.adapters.persistence.entity.ProductEntity;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +26,7 @@ class AddProductUseCaseTest {
     private AppPersistenceAdapterPort appPersistenceAdapterPort;
 
     @Mock
-    private ProductsDomainMapper mapper;
+    private ProductsMapper mapper;
 
     @InjectMocks
     private AddProductUseCase addProductUseCase;

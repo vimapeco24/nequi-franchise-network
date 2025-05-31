@@ -6,30 +6,28 @@ import com.network.franchise.domain.common.exceptions.BusinessException;
 import com.network.franchise.domain.common.exceptions.DuplicateException;
 import com.network.franchise.infrastructure.inbound.mapper.FranchiseMapper;
 import com.network.franchise.domain.model.Franchise;
-import com.network.franchise.domain.spi.CreateFranchiseServicePort;
-import com.network.franchise.domain.dto.response.CreateFranchiseResponseDto;
+import com.network.franchise.domain.spi.UpdateFranchiseNameServicePort;
 import reactor.core.publisher.Mono;
 
-public class CreateFranchiseUseCase implements CreateFranchiseServicePort {
+public class UpdateFranchiseNameUseCase implements UpdateFranchiseNameServicePort {
 
     private final AppPersistenceAdapterPort appPersistenceAdapterPort;
     private final FranchiseMapper mapper;
 
-    public CreateFranchiseUseCase(AppPersistenceAdapterPort appPersistenceAdapterPort, FranchiseMapper mapper) {
+    public UpdateFranchiseNameUseCase(AppPersistenceAdapterPort appPersistenceAdapterPort, FranchiseMapper mapper) {
         this.appPersistenceAdapterPort = appPersistenceAdapterPort;
         this.mapper = mapper;
     }
 
     @Override
-    public Mono<CreateFranchiseResponseDto> createTechnology(Franchise request) {
+    public Mono<Long> updateFranchiseName(Franchise request) {
         if (request.getName() == null || request.getName().isBlank()) {
             return Mono.error(new BusinessException(TechnicalMessage.MISSING_REQUIRED_FIELD));
         }
         return appPersistenceAdapterPort.existsFranchiseByName(request.getName())
                 .flatMap(exists -> {
                     if (exists) return Mono.error(new DuplicateException(TechnicalMessage.ALREADY_EXISTS));
-                    return appPersistenceAdapterPort.createFranchise(mapper.toEntityFromDomainFranchise(request))
-                            .map(mapper::toDomainFromFranchiseEntity);
+                    return appPersistenceAdapterPort.updateFranchiseName(mapper.toEntityFromDomainFranchise(request));
                 })
                 .switchIfEmpty(Mono.error(new BusinessException(TechnicalMessage.BAD_REQUEST)));
     }

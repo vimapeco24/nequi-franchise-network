@@ -3,7 +3,7 @@ package com.network.franchise.domain.usecase.command;
 import com.network.franchise.domain.api.AppPersistenceAdapterPort;
 import com.network.franchise.domain.common.exceptions.BusinessException;
 import com.network.franchise.domain.dto.response.CreateBranchResponseDto;
-import com.network.franchise.domain.mapper.BranchesDomainMapper;
+import com.network.franchise.infrastructure.inbound.mapper.BranchesMapper;
 import com.network.franchise.domain.model.Branch;
 import com.network.franchise.infrastructure.adapters.persistence.entity.BranchEntity;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +23,7 @@ class AddBranchUseCaseTest {
     private AppPersistenceAdapterPort appPersistenceAdapterPort;
 
     @Mock
-    private BranchesDomainMapper mapper;
+    private BranchesMapper mapper;
 
     @InjectMocks
     private AddBranchUseCase addBranchUseCase;

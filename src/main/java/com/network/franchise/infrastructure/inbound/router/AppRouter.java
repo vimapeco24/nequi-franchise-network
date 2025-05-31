@@ -1,10 +1,7 @@
 package com.network.franchise.infrastructure.inbound.router;
 
 import com.network.franchise.domain.common.ErrorDto;
-import com.network.franchise.domain.dto.request.CreateBranchRequestDto;
-import com.network.franchise.domain.dto.request.CreateFranchiseRequestDto;
-import com.network.franchise.domain.dto.request.CreateProductRequestDto;
-import com.network.franchise.domain.dto.request.UpdateProductStockRequestDto;
+import com.network.franchise.domain.dto.request.*;
 import com.network.franchise.domain.dto.response.CreateBranchResponseDto;
 import com.network.franchise.domain.dto.response.CreateFranchiseResponseDto;
 import com.network.franchise.domain.dto.response.CreateProductResponseDto;
@@ -353,6 +350,59 @@ public class AppRouter {
                                     )
                             }
                     )
+            ),
+            @RouterOperation(
+                    path = "/api/v1/franchises/{franchiseId}/name",
+                    produces = "application/json",
+                    method = RequestMethod.PATCH,
+                    beanClass = AppHandler.class,
+                    beanMethod = "updateFranchiseName",
+                    operation = @io.swagger.v3.oas.annotations.Operation(
+                            operationId = "updateFranchiseName",
+                            summary = "Update Franchise name",
+                            description = "Update the name of an existing Franchise in the database.",
+                            parameters = {
+                                    @Parameter(name = "franchiseId", in = ParameterIn.PATH, description = "Franchise ID", example = "1"),
+                            },
+                            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                    required = true,
+                                    description = "Franchise Name Request DTO",
+                                    content = @io.swagger.v3.oas.annotations.media.Content(
+                                            mediaType = "application/json",
+                                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = UpdateFranchiseNameRequestDto.class)
+                                    )
+                            ),
+                            responses = {
+                                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                                            responseCode = "200",
+                                            description = "OK"
+                                    ),
+                                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                                            responseCode = "400",
+                                            description = "Bad Request",
+                                            content = @io.swagger.v3.oas.annotations.media.Content(
+                                                    mediaType = "application/json",
+                                                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = ErrorDto.class)
+                                            )
+                                    ),
+                                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                                            responseCode = "404",
+                                            description = "Not Found",
+                                            content = @io.swagger.v3.oas.annotations.media.Content(
+                                                    mediaType = "application/json",
+                                                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = ErrorDto.class)
+                                            )
+                                    ),
+                                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                                            responseCode = "500",
+                                            description = "Internal Server Error",
+                                            content = @io.swagger.v3.oas.annotations.media.Content(
+                                                    mediaType = "application/json",
+                                                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = ErrorDto.class)
+                                            )
+                                    )
+                            }
+                    )
             )
     })
     public RouterFunction<ServerResponse> franchiseRoutes(AppHandler handler) {
@@ -363,6 +413,7 @@ public class AppRouter {
                 .DELETE("/api/v1/branches/{branchId}/products/{productId}", handler::deleteProduct)
                 .PUT("/api/v1/products/{productId}/stock", handler::updateStock)
                 .GET("/api/v1/franchises/{franchiseId}/top-products", handler::getTopProductsPerBranch)
+                .PATCH("/api/v1/franchises/{franchiseId}/name", handler::updateFranchiseName)
                 .build();
     }
 }

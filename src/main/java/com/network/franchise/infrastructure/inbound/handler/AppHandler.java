@@ -2,16 +2,14 @@ package com.network.franchise.infrastructure.inbound.handler;
 
 import com.network.franchise.domain.common.ErrorDto;
 import com.network.franchise.domain.common.exceptions.BusinessException;
-import com.network.franchise.domain.dto.request.CreateBranchRequestDto;
-import com.network.franchise.domain.dto.request.CreateProductRequestDto;
-import com.network.franchise.domain.dto.request.UpdateProductStockRequestDto;
-import com.network.franchise.domain.mapper.BranchesDomainMapper;
-import com.network.franchise.domain.mapper.FranchiseDomainMapper;
-import com.network.franchise.domain.mapper.ProductsDomainMapper;
+import com.network.franchise.domain.dto.request.*;
+import com.network.franchise.infrastructure.inbound.mapper.BranchesMapper;
+import com.network.franchise.infrastructure.inbound.mapper.FranchiseMapper;
+import com.network.franchise.infrastructure.inbound.mapper.ProductsMapper;
 import com.network.franchise.domain.model.Branch;
+import com.network.franchise.domain.model.Franchise;
 import com.network.franchise.domain.model.Product;
 import com.network.franchise.domain.spi.*;
-import com.network.franchise.domain.dto.request.CreateFranchiseRequestDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,15 +36,15 @@ public class AppHandler {
     private final DeleteProductServicePort deleteProductServicePort;
     private final UpdateStockServicePort updateStockServicePort;
     public final GetTopProductsPerBranchServicePort getTopProductsPerBranchServicePort;
+    public final UpdateFranchiseNameServicePort updateFranchiseNameServicePort;
 
-    private final FranchiseDomainMapper franchiseMapper;
-    private final BranchesDomainMapper branchesMapper;
-    private final ProductsDomainMapper productsMapper;
+    private final FranchiseMapper franchiseMapper;
+    private final BranchesMapper branchesMapper;
+    private final ProductsMapper productsMapper;
 
     public Mono<ServerResponse> createFranchise(ServerRequest request) {
         return request.bodyToMono(CreateFranchiseRequestDto.class)
-                .flatMap(req -> createFranchiseServicePort
-                        .createTechnology(franchiseMapper.toDomainFromFranchiseRequestDto(req)))
+                .flatMap(req -> createFranchiseServicePort.createTechnology(franchiseMapper.toDomainFromFranchiseRequestDto(req)))
                 .flatMap(franchise -> ServerResponse.ok().bodyValue(franchise))
                 .doOnError(error -> log.error(CREATE_ERROR, error.getMessage()))
                 .onErrorResume(BusinessException.class, ex -> buildErrorResponse(
@@ -159,12 +157,26 @@ public class AppHandler {
                 ));
     }
 
-//    public Mono<ServerResponse> getTopProductsPerBranch(ServerRequest request) {
-//        Long franchiseId = Long.parseLong(request.pathVariable("franchiseId"));
-//        return branchRepository.findByFranchiseId(franchiseId)
-//                .flatMap(branchEntity -> productRepository.findTopByBranchIdOrderByStockDesc(branchEntity.getId())
-//                        .map(productEntity -> Map.of("branch", branchEntity, "product", productEntity)))
-//                .collectList()
-//                .flatMap(results -> ServerResponse.ok().bodyValue(results));
-//    }
+    public Mono<ServerResponse> updateFranchiseName(ServerRequest request) {
+        Long franchiseId = Long.parseLong(request.pathVariable("franchiseId"));
+        return request.bodyToMono(UpdateFranchiseNameRequestDto.class)
+                .flatMap(dto -> {
+                    Franchise franchise = Franchise.builder()
+                            .id(franchiseId)
+                            .name(dto.getName())
+                            .build();
+                    return updateFranchiseNameServicePort.updateFranchiseName(franchiseMapper.toDomainFromUpdateFranchiseNameRequestDto(franchise, franchiseId))
+                            .flatMap(res -> ServerResponse.ok().bodyValue(res));
+                })
+                .doOnError(error -> log.error(UPDATE_ERROR, error.getMessage()))
+                .onErrorResume(BusinessException.class, ex -> buildErrorResponse(
+                        HttpStatus.BAD_REQUEST, ex.getTechnicalMessage(),
+                        List.of(ErrorDto.builder()
+                                .code(ex.getTechnicalMessage().getCode())
+                                .message(ex.getTechnicalMessage().getMessage())
+                                .parameter(ex.getTechnicalMessage().getParameter())
+                                .build())
+                ));
+
+    }
 }
