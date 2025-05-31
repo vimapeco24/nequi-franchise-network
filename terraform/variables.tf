@@ -1,5 +1,5 @@
 variable "app_name" {
-  default = "franchise-network"
+  default = "-nequi-franchise-network"
 }
 
 variable "ecr_image" {
