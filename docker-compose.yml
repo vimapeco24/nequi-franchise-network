@@ -1,0 +1,42 @@
+services:
+
+  # [PostgreSQL] Database service
+  postgres-franchises:
+    image: postgres:latest
+    container_name: postgres-nequi-franchises-db
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=username
+      - POSTGRES_PASSWORD=user_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # [Franchise Network Management] Service
+  app:
+    build:
+        context: ./
+        dockerfile: Dockerfile
+    restart: always
+    container_name: franchise-network-mgmt
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_R2DBC_URL: r2dbc:postgresql://postgres-franchises-db:5432/postgres
+      SPRING_R2DBC_USERNAME: username
+      SPRING_R2DBC_PASSWORD: user_password
+#      SPRING_APPLICATION_JSON: '{
+#        "spring.profiles.active" : "local",
+#        "spring.r2dbc.password": "user_password"
+#        "spring.r2dbc.username": "username"
+#        "spring.r2dbc.url": "r2dbc:postgresql://postgres-franchises-db:5432/postgres"
+#      }'
+    depends_on:
+      - postgres-franchises
+    stdin_open: true
+    tty: true
+
+volumes:
+  postgres_data:
