@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "franchise-network-management",
-    "description": "API RESTFul operaciones sobre franchise-network-management.",
+    "title": "nequi-franchise-network",
+    "description": "API RESTFul operaciones sobre nequi-franchise-network.",
     "termsOfService": "https://opensource.org/licenses/MIT",
     "contact": {
-      "name": "Raul Bolivar Navas @ rasysbox",
-      "email": "raul.bolivar@pragma.com.co"
+      "name": "Victor Manuel Perez @vimapeco24",
+      "email": "victor.perezc@pragma.com.co"
     },
     "license": {
       "name": "MIT License",
@@ -17,7 +17,7 @@
   "servers": [
     {
       "url": "http://localhost:8080",
-      "description": "API RESTFul operaciones sobre franchise-network-management."
+      "description": "API RESTFul operaciones sobre nequi-franchise-network"
     }
   ],
   "tags": [
