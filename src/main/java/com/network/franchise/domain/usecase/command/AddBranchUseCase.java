@@ -4,7 +4,7 @@ import com.network.franchise.domain.api.AppPersistenceAdapterPort;
 import com.network.franchise.domain.common.enums.TechnicalMessage;
 import com.network.franchise.domain.common.exceptions.BusinessException;
 import com.network.franchise.domain.dto.response.CreateBranchResponseDto;
-import com.network.franchise.infrastructure.inbound.mapper.BranchesMapper;
+import com.network.franchise.domain.mapper.BranchesDtoMapper;
 import com.network.franchise.domain.model.Branch;
 import com.network.franchise.domain.spi.AddBranchServicePort;
 import reactor.core.publisher.Mono;
@@ -12,9 +12,9 @@ import reactor.core.publisher.Mono;
 public class AddBranchUseCase implements AddBranchServicePort {
 
     private final AppPersistenceAdapterPort appPersistenceAdapterPort;
-    private final BranchesMapper mapper;
+    private final BranchesDtoMapper mapper;
 
-    public AddBranchUseCase(AppPersistenceAdapterPort appPersistenceAdapterPort, BranchesMapper mapper) {
+    public AddBranchUseCase(AppPersistenceAdapterPort appPersistenceAdapterPort, BranchesDtoMapper mapper) {
         this.appPersistenceAdapterPort = appPersistenceAdapterPort;
         this.mapper = mapper;
     }

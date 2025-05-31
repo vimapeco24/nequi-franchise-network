@@ -1,9 +1,9 @@
 package com.network.franchise.application.config;
 
 import com.network.franchise.domain.api.AppPersistenceAdapterPort;
-import com.network.franchise.infrastructure.inbound.mapper.BranchesMapper;
-import com.network.franchise.infrastructure.inbound.mapper.FranchiseMapper;
-import com.network.franchise.infrastructure.inbound.mapper.ProductsMapper;
+import com.network.franchise.domain.mapper.BranchesDtoMapper;
+import com.network.franchise.domain.mapper.FranchiseDtoMapper;
+import com.network.franchise.domain.mapper.ProductDtoMapper;
 import com.network.franchise.domain.usecase.command.*;
 import com.network.franchise.domain.usecase.queries.GetTopProductsPerBranchUseCase;
 import org.springframework.context.annotation.Bean;
@@ -16,19 +16,19 @@ public class UseCaseConfig {
 
     @Bean
     public CreateFranchiseUseCase createFranchiseUseCase(AppPersistenceAdapterPort appPersistenceAdapterPort,
-                                                         FranchiseMapper mapper) {
+                                                         FranchiseDtoMapper mapper) {
         return new CreateFranchiseUseCase(appPersistenceAdapterPort, mapper);
     }
 
     @Bean
     public AddBranchUseCase addBranchUseCase(AppPersistenceAdapterPort appPersistenceAdapterPort,
-                                             BranchesMapper mapper) {
+                                             BranchesDtoMapper mapper) {
         return new AddBranchUseCase(appPersistenceAdapterPort, mapper);
     }
 
     @Bean
     public AddProductUseCase addProductUseCase(AppPersistenceAdapterPort appPersistenceAdapterPort,
-                                               ProductsMapper mapper) {
+                                               ProductDtoMapper mapper) {
         return new AddProductUseCase(appPersistenceAdapterPort, mapper);
     }
 
@@ -39,7 +39,7 @@ public class UseCaseConfig {
 
     @Bean
     public UpdateStockUseCase updateStockUseCase(AppPersistenceAdapterPort appPersistenceAdapterPort,
-                                                 ProductsMapper mapper) {
+                                                 ProductDtoMapper mapper) {
         return new UpdateStockUseCase(appPersistenceAdapterPort, mapper);
     }
 
@@ -50,7 +50,7 @@ public class UseCaseConfig {
 
     @Bean
     public UpdateFranchiseNameUseCase updateFranchiseNameUseCase(AppPersistenceAdapterPort appPersistenceAdapterPort,
-                                                                 FranchiseMapper mapper) {
+                                                                 FranchiseDtoMapper mapper) {
         return new UpdateFranchiseNameUseCase(appPersistenceAdapterPort, mapper);
     }
 }

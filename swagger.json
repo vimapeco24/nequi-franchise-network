@@ -1,0 +1,657 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "franchise-network-management",
+    "description": "API RESTFul operaciones sobre franchise-network-management.",
+    "termsOfService": "https://opensource.org/licenses/MIT",
+    "contact": {
+      "name": "Raul Bolivar Navas @ rasysbox",
+      "email": "raul.bolivar@pragma.com.co"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "API RESTFul operaciones sobre franchise-network-management."
+    }
+  ],
+  "tags": [
+    {
+      "name": "Franchises",
+      "description": "Franchises Management Services API"
+    }
+  ],
+  "paths": {
+    "/api/v1/branches/{branchId}/products": {
+      "post": {
+        "tags": [
+          "Franchises"
+        ],
+        "summary": "Add a new Product to a Branch",
+        "description": "Add a new Product to an existing Branch in the database.",
+        "operationId": "addProduct",
+        "parameters": [
+          {
+            "name": "branchId",
+            "in": "path",
+            "description": "Branch ID",
+            "required": true,
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "description": "Product Request DTO",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProductRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateProductResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/branches/{branchId}/products/{productId}": {
+      "delete": {
+        "tags": [
+          "Franchises"
+        ],
+        "summary": "Delete a Product from a Branch",
+        "description": "Delete a Product from an existing Branch in the database.",
+        "operationId": "deleteProduct",
+        "parameters": [
+          {
+            "name": "branchId",
+            "in": "path",
+            "description": "Branch ID",
+            "required": true,
+            "example": 1
+          },
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "Product ID",
+            "required": true,
+            "example": 1
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/franchises": {
+      "post": {
+        "tags": [
+          "Franchises"
+        ],
+        "summary": "Create a new Franchise",
+        "description": "Create a new Franchise in the database.",
+        "operationId": "createFranchise",
+        "requestBody": {
+          "description": "Franchise Request DTO",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFranchiseRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateFranchiseResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/franchises/{franchiseId}/branches": {
+      "post": {
+        "tags": [
+          "Franchises"
+        ],
+        "summary": "Add a new Branch to a Franchise",
+        "description": "Add a new Branch to an existing Franchise in the database.",
+        "operationId": "addBranch",
+        "parameters": [
+          {
+            "name": "franchiseId",
+            "in": "path",
+            "description": "Franchise ID",
+            "required": true,
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "description": "Branch Request DTO",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBranchRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateBranchResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/franchises/{franchiseId}/top-products": {
+      "get": {
+        "tags": [
+          "Franchises"
+        ],
+        "summary": "Get top products per branch of a Franchise",
+        "description": "Get the top products per branch of a Franchise.",
+        "operationId": "getTopProductsPerBranch",
+        "parameters": [
+          {
+            "name": "franchiseId",
+            "in": "path",
+            "description": "Franchise ID",
+            "required": true,
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopProductPerBranchDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/{productId}/stock": {
+      "put": {
+        "tags": [
+          "Franchises"
+        ],
+        "summary": "Update stock of a Product",
+        "description": "Update the stock of an existing Product in the database.",
+        "operationId": "updateStock",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "Product ID",
+            "required": true,
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "description": "Stock Request DTO",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProductStockRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateProductResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateProductRequestDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Product name",
+            "example": "Product A"
+          },
+          "stock": {
+            "type": "integer",
+            "description": "Stock quantity",
+            "format": "int64",
+            "example": 100
+          }
+        },
+        "description": "Create product request"
+      },
+      "CreateProductResponseDto": {
+        "required": [
+          "branchId",
+          "name",
+          "stock"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique identifier of the product",
+            "format": "int64",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the product",
+            "example": "Product Name"
+          },
+          "stock": {
+            "type": "integer",
+            "description": "Product Stock",
+            "format": "int64",
+            "example": 150
+          },
+          "branchId": {
+            "type": "integer",
+            "description": "Branch ID",
+            "format": "int64",
+            "example": 1
+          }
+        },
+        "description": "Response DTO for creating a product"
+      },
+      "ErrorDto": {
+        "title": "Error DTO",
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Error code"
+          },
+          "parameter": {
+            "type": "string",
+            "description": "Error type"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          }
+        },
+        "description": "Error DTO"
+      },
+      "ServerResponse": {
+        "type": "object"
+      },
+      "CreateFranchiseRequestDto": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the franchise",
+            "example": "Franchise Name"
+          }
+        },
+        "description": "Request DTO for creating a franchise"
+      },
+      "CreateFranchiseResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique identifier of the franchise",
+            "format": "int64",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the franchise",
+            "example": "Franchise Name"
+          }
+        },
+        "description": "Response DTO for creating a franchise"
+      },
+      "CreateBranchRequestDto": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the branch",
+            "example": "branch Name"
+          }
+        },
+        "description": "Request DTO for creating a branch"
+      },
+      "CreateBranchResponseDto": {
+        "required": [
+          "franchiseId",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique identifier of the branch",
+            "format": "int64",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the branch",
+            "example": "Branch Name"
+          },
+          "franchiseId": {
+            "type": "integer",
+            "description": "Branch ID",
+            "format": "int64",
+            "example": 1
+          }
+        },
+        "description": "Response DTO for creating a branch"
+      },
+      "Branch": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "franchiseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "branchId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stock": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TopProductPerBranchDto": {
+        "type": "object",
+        "properties": {
+          "branch": {
+            "$ref": "#/components/schemas/Branch"
+          },
+          "product": {
+            "$ref": "#/components/schemas/Product"
+          }
+        }
+      },
+      "UpdateProductStockRequestDto": {
+        "type": "object",
+        "properties": {
+          "stock": {
+            "type": "integer",
+            "description": "Stock quantity",
+            "format": "int64",
+            "example": 100
+          }
+        },
+        "description": "Request DTO for updating product stock"
+      }
+    }
+  }
+}

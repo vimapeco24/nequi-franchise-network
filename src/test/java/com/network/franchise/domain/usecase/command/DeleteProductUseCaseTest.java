@@ -1,12 +1,10 @@
 package com.network.franchise.domain.usecase.command;
 
 import com.network.franchise.domain.api.AppPersistenceAdapterPort;
-import com.network.franchise.domain.common.enums.TechnicalMessage;
 import com.network.franchise.domain.common.exceptions.NotFoundException;
 import com.network.franchise.domain.spi.DeleteProductServicePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 

@@ -4,7 +4,7 @@ import com.network.franchise.domain.api.AppPersistenceAdapterPort;
 import com.network.franchise.domain.common.enums.TechnicalMessage;
 import com.network.franchise.domain.common.exceptions.BusinessException;
 import com.network.franchise.domain.common.exceptions.DuplicateException;
-import com.network.franchise.infrastructure.inbound.mapper.FranchiseMapper;
+import com.network.franchise.domain.mapper.FranchiseDtoMapper;
 import com.network.franchise.domain.model.Franchise;
 import com.network.franchise.domain.spi.CreateFranchiseServicePort;
 import com.network.franchise.domain.dto.response.CreateFranchiseResponseDto;
@@ -13,9 +13,9 @@ import reactor.core.publisher.Mono;
 public class CreateFranchiseUseCase implements CreateFranchiseServicePort {
 
     private final AppPersistenceAdapterPort appPersistenceAdapterPort;
-    private final FranchiseMapper mapper;
+    private final FranchiseDtoMapper mapper;
 
-    public CreateFranchiseUseCase(AppPersistenceAdapterPort appPersistenceAdapterPort, FranchiseMapper mapper) {
+    public CreateFranchiseUseCase(AppPersistenceAdapterPort appPersistenceAdapterPort, FranchiseDtoMapper mapper) {
         this.appPersistenceAdapterPort = appPersistenceAdapterPort;
         this.mapper = mapper;
     }

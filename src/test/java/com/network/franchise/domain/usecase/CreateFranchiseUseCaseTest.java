@@ -4,7 +4,7 @@ import com.network.franchise.domain.api.AppPersistenceAdapterPort;
 import com.network.franchise.domain.common.enums.TechnicalMessage;
 import com.network.franchise.domain.common.exceptions.BusinessException;
 import com.network.franchise.domain.common.exceptions.DuplicateException;
-import com.network.franchise.infrastructure.inbound.mapper.FranchiseMapper;
+import com.network.franchise.domain.mapper.FranchiseDtoMapper;
 import com.network.franchise.domain.model.Franchise;
 import com.network.franchise.domain.dto.response.CreateFranchiseResponseDto;
 import com.network.franchise.domain.usecase.command.CreateFranchiseUseCase;
@@ -20,13 +20,13 @@ import static org.mockito.Mockito.*;
 class CreateFranchiseUseCaseTest {
 
     private AppPersistenceAdapterPort appPersistenceAdapterPort;
-    private FranchiseMapper mapper;
+    private FranchiseDtoMapper mapper;
     private CreateFranchiseUseCase useCase;
 
     @BeforeEach
     void setUp() {
         appPersistenceAdapterPort = mock(AppPersistenceAdapterPort.class);
-        mapper = mock(FranchiseMapper.class);
+        mapper = mock(FranchiseDtoMapper.class);
         useCase = new CreateFranchiseUseCase(appPersistenceAdapterPort, mapper);
     }
 
