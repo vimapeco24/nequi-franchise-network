@@ -8,7 +8,4 @@ import reactor.core.publisher.Mono;
 public interface BranchRepository extends ReactiveCrudRepository<BranchEntity, Long> {
     Flux<BranchEntity> findBranchEntityByFranchiseId(Long franchiseId);
     Mono<Boolean> existsByName(String name);
-
-    Mono<Boolean> existsByNameAndFranchiseId(String name, Long franchiseId);
-    Mono<Boolean> existsByFranchiseId(Long franchiseId);
 }

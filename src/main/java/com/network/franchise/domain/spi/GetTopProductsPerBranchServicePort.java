@@ -1,9 +1,9 @@
 package com.network.franchise.domain.spi;
 
-import com.network.franchise.domain.dto.response.GetTopProductsPerBranchResponseDto;
-import com.network.franchise.domain.dto.response.top.TopProductPerBranchDto;
+import com.network.franchise.domain.dto.response.newtop.TopProductByBranchByFranchiseResponseDto;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface GetTopProductsPerBranchServicePort {
-    Mono<TopProductPerBranchDto> getTopProductsPerBranch(Long franchiseId);
+    Flux<TopProductByBranchByFranchiseResponseDto> getTopProductsPerBranch(Long franchiseId);
 }

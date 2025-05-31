@@ -24,7 +24,7 @@ public class InputSanitizer {
      * @see <a href="https://owasp.org/www-community/OWASP_Java_HTML_Sanitizer_Project">OWASP Java HTML Sanitizer Project</a>
      * @see <a href="https://owasp.org/www-community/OWASP_Prevention_Cheat_Sheets">OWASP Prevention Cheat Sheets</a>
      *
-     * @Recommended to use for: Raul Bolivar Navas - Since 2022-10-05
+     * @Recommended to use for: Victor Manuel Perez
      */
     public static String blindStr(String value) {
         PolicyFactory policy = Sanitizers.FORMATTING.and(Sanitizers.LINKS);

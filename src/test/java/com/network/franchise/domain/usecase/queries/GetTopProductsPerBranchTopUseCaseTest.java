@@ -8,7 +8,7 @@ import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-public class GetTopProductsPerBranchUseCaseTest {
+public class GetTopProductsPerBranchTopUseCaseTest {
 
     private AppPersistenceAdapterPort appPersistenceAdapterPort;
     private GetTopProductsPerBranchUseCase useCase;

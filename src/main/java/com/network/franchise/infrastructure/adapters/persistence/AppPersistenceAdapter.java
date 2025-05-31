@@ -4,12 +4,13 @@ import com.network.franchise.domain.api.AppPersistenceAdapterPort;
 import com.network.franchise.domain.common.enums.TechnicalMessage;
 import com.network.franchise.domain.common.exceptions.NoContentException;
 import com.network.franchise.domain.common.exceptions.ProcessorException;
-import com.network.franchise.domain.dto.response.top.Branch;
-import com.network.franchise.domain.dto.response.top.Product;
-import com.network.franchise.domain.dto.response.top.TopProductPerBranchDto;
+import com.network.franchise.domain.dto.response.newtop.ProductsTopByBranchItem;
+import com.network.franchise.domain.model.Branch;
+import com.network.franchise.domain.model.Franchise;
+import com.network.franchise.domain.model.Product;
+import com.network.franchise.domain.dto.response.newtop.TopProductByBranchByFranchiseResponseDto;
 import com.network.franchise.infrastructure.adapters.persistence.entity.BranchEntity;
-import com.network.franchise.infrastructure.adapters.persistence.entity.FranchiseEntity;
-import com.network.franchise.infrastructure.adapters.persistence.entity.ProductEntity;
+import com.network.franchise.infrastructure.adapters.persistence.mapper.AppEntityMapper;
 import com.network.franchise.infrastructure.adapters.persistence.repository.BranchRepository;
 import com.network.franchise.infrastructure.adapters.persistence.repository.FranchiseRepository;
 import com.network.franchise.infrastructure.adapters.persistence.repository.ProductRepository;
@@ -17,7 +18,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -28,28 +32,38 @@ public class AppPersistenceAdapter implements AppPersistenceAdapterPort {
     private final BranchRepository branchRepository;
     private final ProductRepository productRepository;
     private final R2dbcEntityTemplate template;
+    private final AppEntityMapper mapper;
 
     @Override
-    public Mono<FranchiseEntity> createFranchise(FranchiseEntity franchiseEntity) {
-        return franchiseRepository.save(franchiseEntity)
+    public Mono<Franchise> createFranchise(Franchise franchise) {
+        return franchiseRepository.save(mapper.toEntityFromFranchiseDomain(franchise))
+                .map(mapper::toDomainFromFranchiseEntity)
                 .switchIfEmpty(Mono.error(new ProcessorException("Error saving technology", TechnicalMessage.BAD_REQUEST)));
     }
 
     @Override
-    public Mono<BranchEntity> addBranch(BranchEntity branchEntity) {
-        return branchRepository.save(branchEntity)
+    public Mono<Branch> addBranch(Branch branch) {
+        return branchRepository.save(mapper.toEntityFromBranchDomain(branch))
+                .map(mapper::toDomainFromBranchEntity)
                 .switchIfEmpty(Mono.error(new ProcessorException("Error adding branch", TechnicalMessage.BAD_REQUEST)));
     }
 
     @Override
-    public Mono<ProductEntity> addProduct(ProductEntity productEntity) {
-        return productRepository.save(productEntity)
+    public Mono<Product> addProduct(Product product) {
+        return productRepository.save(mapper.toEntityFromProductDomain(product))
+                .map(mapper::toDomainFromProductEntity)
                 .switchIfEmpty(Mono.error(new ProcessorException("Error adding product", TechnicalMessage.BAD_REQUEST)));
     }
 
     @Override
-    public Mono<ProductEntity> findProductById(Long productId) {
-        return productRepository.findById(productId);
+    public Mono<Void> deleteProduct(Long productId, Long branchId) {
+        return productRepository.deleteProduct(productId, branchId);
+    }
+
+    @Override
+    public Mono<Product> findProductById(Long productId) {
+        return productRepository.findById(productId)
+                .map(mapper::toDomainFromProductEntity);
     }
 
     @Override
@@ -64,37 +78,38 @@ public class AppPersistenceAdapter implements AppPersistenceAdapterPort {
     }
 
     @Override
-    public Mono<Void> deleteProduct(Long productId, Long branchId) {
-        return productRepository.deleteProduct(productId, branchId);
-    }
-
-    @Override
-    public Mono<ProductEntity> updateProduct(ProductEntity productEntity, Long productId) {
+    public Mono<Product> updateProduct(Product product, Long productId) {
         return productRepository.findById(productId)
                 .flatMap(existingProductEntity -> {
-                    productEntity.setId(existingProductEntity.getId());
-                    return productRepository.save(productEntity);
-                })
-                .switchIfEmpty(Mono.error(new ProcessorException("Error updating product", TechnicalMessage.BAD_REQUEST)));
+                    product.setId(existingProductEntity.getId());
+                    return productRepository.save(mapper.toEntityFromProductDomain(product))
+                            .map(mapper::toDomainFromProductEntity);
+                });
     }
 
     @Override
-    public Mono<TopProductPerBranchDto> getTopProductsPerBranch(Long franchiseId) {
-        return findByFranchiseId(franchiseId)
-                .flatMap(branch -> productRepository.findTopByBranchIdOrderByStockDesc(branch.getId())
-                                .map(productEntity -> TopProductPerBranchDto.builder()
-                                        .branch(Branch.builder()
-                                                .franchiseId(Math.toIntExact(branch.getId()))
-                                                .name(branch.getName())
-                                                .id(Math.toIntExact(branch.getId()))
-                                                .build())
-                                        .product(Product.builder()
-                                                .stock(productEntity.getStock())
-                                                .name(productEntity.getName())
-                                                .id(Math.toIntExact(productEntity.getId()))
-                                                .branchId(Math.toIntExact(productEntity.getBranchId()))
-                                                .build())
-                                        .build()));
+    public Flux<TopProductByBranchByFranchiseResponseDto> getTopProductsPerBranch(Long franchiseId) {
+        return franchiseRepository.existsById(franchiseId)
+                .flatMapMany(exists -> {
+                    if (exists) {
+                        return productRepository.findProductTopByFranchiseIdGroupByBranch(franchiseId)
+                                .flatMap(productEntity -> branchRepository.findById(productEntity.getBranchId())
+                                        .map(branchEntity -> TopProductByBranchByFranchiseResponseDto.builder()
+                                                .franchiseId(Math.toIntExact(franchiseId))
+                                                .productsTopByBranch(
+                                                        List.of(
+                                                                ProductsTopByBranchItem.builder()
+                                                                        .branchId(Math.toIntExact(branchEntity.getId()))
+                                                                        .productId(Math.toIntExact(productEntity.getProductId()))
+                                                                        .stock(Math.toIntExact(productEntity.getProductStock()))
+                                                                        .productName(productEntity.getProductName())
+                                                                        .build()
+                                                        )
+                                                )
+                                                .build()));
+                    }
+                    return Mono.error(new ProcessorException("Franchise does not exist", TechnicalMessage.BAD_REQUEST));
+                });
     }
 
     @Override
@@ -179,13 +194,23 @@ public class AppPersistenceAdapter implements AppPersistenceAdapterPort {
     }
 
     @Override
-    public Mono<Long> updateFranchiseName(FranchiseEntity request) {
+    public Mono<Long> updateFranchiseName(Franchise request) {
         return franchiseRepository.findById(request.getId())
                 .flatMap(existingProductEntity -> updateFranchiseNameRepository(request.getId(), request.getName()));
     }
 
+    @Override
+    public Mono<Boolean> existsByNameAndBranchId(String name, Long branchId) {
+        return productRepository.existsByNameAndBranchId(name, branchId)
+                .flatMap(exists -> {
+                    if (exists) return Mono.just(true);
+                    return Mono.just(false);
+                })
+                .switchIfEmpty(Mono.error(new ProcessorException("Error checking product existence", TechnicalMessage.BAD_REQUEST)));
+    }
+
     public Mono<Long> updateFranchiseNameRepository(Long id, String name) {
-        String sql = "UPDATE public.franchises SET name = :name, updated_at = CURRENT_TIMESTAMP WHERE id = :id";
+        String sql = "UPDATE public.franchises SET name = :name WHERE id = :id";
         return template
                 .getDatabaseClient()
                 .sql(sql)

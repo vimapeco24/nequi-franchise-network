@@ -9,9 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Product{
-	private int branchId;
+public class BranchTop {
 	private String name;
+	private int franchiseId;
 	private int id;
-	private int stock;
 }

@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ResponseDtoItem{
-	private Product product;
-	private Branch branch;
+	private ProductTop productTop;
+	private BranchTop branchTop;
 }

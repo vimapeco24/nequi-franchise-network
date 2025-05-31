@@ -5,5 +5,5 @@ import com.network.franchise.domain.dto.response.CreateFranchiseResponseDto;
 import reactor.core.publisher.Mono;
 
 public interface CreateFranchiseServicePort {
-    Mono<CreateFranchiseResponseDto> createTechnology(Franchise request);
+    Mono<Franchise> createTechnology(Franchise request);
 }
